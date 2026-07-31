@@ -1,32 +1,66 @@
-# React + TypeScript + Vite
+# Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Vite + React + TS. Mic capture, WAV conversion, the practice screen. See the root
+[README](../README.md) for how to run it.
 
-Currently, two official plugins are available:
+## Styling: CSS Modules + BEM
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Two layers, and the split is deliberate:
 
-## React Compiler
+- **`src/index.css`** — the only global stylesheet. Design tokens (`--bg`, `--accent`, …) and
+  bare-element base styles (`body`, `h1`, the shared `button` shape). No component styles.
+- **`src/*.module.css`** — one module per component. Vite scopes the class names at build time,
+  so `.feedback` in one module can never collide with `.feedback` in another.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Inside a module, class names follow BEM — `block`, `block__element`,
+`block__element--modifier`, kebab-case within each part. One block per component, named after
+it: `practice` in `App.module.css`, `feedback` in `FeedbackPanel.module.css`.
 
-## Expanding the Oxlint configuration
+This is a convention we keep by hand, not a linted rule. Nothing fails if you write
+`.notBEM_Class` — enforcing it needed Stylelint, and Stylelint alone doubled the dependency
+tree, which isn't a trade worth making on a project this size.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+Two conventions worth knowing:
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+- **A modifier never stands alone.** `practice__action--record` carries only what differs (the
+  fill); the shared declarations sit on `practice__action`, and the element applies both classes.
+- **No bare element selectors in a module.** Style a class, not `.fix-its h2` — a descendant
+  element selector couples the stylesheet to the markup structure. Element selectors belong to
+  `index.css`, which is where the base layer lives.
+
+Modifier and multi-word names need bracket access, because `-` isn't valid in a JS identifier:
+
+```tsx
+import styles from './App.module.css';
+
+<nav className={styles.practice__nav}>
+  <button className={styles['practice__nav-button']}>…</button>
+</nav>;
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+One gap to be aware of: `styles` is typed as `Record<string, string>` by `vite/client`, so a
+misspelled `styles.pratice__nav` type-checks and silently renders `class="undefined"`. Nothing in
+the toolchain catches that — Biome's `noUnusedClasses` / `noUndeclaredClasses` are the rules that
+would, and both are nursery-grade and don't work here (they flagged all 29 classes as unused while
+missing a real typo). Generating `.d.ts` files per module is the option if it ever bites.
+
+## Checks
+
+[Biome](https://biomejs.dev) is the whole toolchain — formatter and linter, for TS, TSX, CSS and
+JSON, in one dependency. Config is `biome.json`.
+
+```sh
+npm run check          # biome (format + lint) then tsc — the one to run before committing
+npm run fix            # biome check --write: formats and applies safe lint fixes
+npm run format         # formatting only
+npm run lint           # linting only
+npm run typecheck      # tsc -b (strict)
+npm run build          # typecheck + production build
+```
+
+Two things Biome does not cover:
+
+- **Markdown.** It has no Markdown formatter, so these README files are hand-formatted. Prettier
+  used to do it, and reflowed the root README's layout table on its first run.
+- **`public/`.** Excluded in `biome.json` — the favicon trips `noSvgWithoutTitle`, which is aimed
+  at inline SVG in markup, not static assets.

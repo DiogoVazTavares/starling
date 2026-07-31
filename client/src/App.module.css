@@ -1,17 +1,25 @@
-main {
+/**
+ * The practice screen — one phase at a time, per ticket 005 ("Guided steps").
+ * BEM block: `practice`.
+ *
+ * Design tokens and bare-element base styles (including the shared `button` shape) are global
+ * and live in index.css — everything here is scoped to this component.
+ */
+
+.practice {
   max-width: 40rem;
   margin: 0 auto;
   padding: 3rem 1.5rem 6rem;
 }
 
-.question-nav {
+.practice__nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
 }
 
-.question-nav button {
+.practice__nav-button {
   padding: 0.5rem 1rem;
   font-weight: 500;
   color: var(--text);
@@ -19,7 +27,7 @@ main {
   border: 1px solid var(--border);
 }
 
-.eyebrow {
+.practice__eyebrow {
   font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -27,13 +35,13 @@ main {
   color: var(--muted);
 }
 
-main > h1 {
+.practice__question {
   margin: 2rem 0;
   font-size: 1.5rem;
   text-align: center;
 }
 
-.step {
+.practice__step {
   display: flex;
   justify-content: center;
   padding: 2rem 0;
@@ -41,56 +49,56 @@ main > h1 {
   border-bottom: 1px solid var(--border);
 }
 
-.step-inner {
+.practice__step-inner {
   display: grid;
   justify-items: center;
   gap: 1.25rem;
   text-align: center;
 }
 
-.cta {
+.practice__cta {
   padding: 1rem 2.25rem;
   font-size: 1rem;
 }
 
-.cta.record {
+.practice__cta--record {
   background: var(--accent);
-  color: #0f1115;
+  color: var(--bg);
 }
 
-.cta.stop {
+.practice__cta--stop {
   background: var(--danger);
-  color: #0f1115;
+  color: var(--bg);
 }
 
-.cta.secondary {
+.practice__cta--secondary {
   background: var(--surface);
   border: 1px solid var(--border);
   color: var(--text);
 }
 
-.review-actions {
+.practice__review-actions {
   display: flex;
   gap: 1rem;
 }
 
-.player {
+.practice__player {
   width: 100%;
   min-width: 20rem;
 }
 
-.hint {
+.practice__hint {
   color: var(--muted);
   margin: 0;
 }
 
-.timer {
+.practice__timer {
   font-variant-numeric: tabular-nums;
   font-size: 1.5rem;
   margin: 0;
 }
 
-.mic {
+.practice__mic {
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
@@ -104,7 +112,7 @@ main > h1 {
   }
 }
 
-.spinner {
+.practice__spinner {
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
@@ -120,120 +128,15 @@ main > h1 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mic,
-  .spinner {
+  .practice__mic,
+  .practice__spinner {
     animation: none;
   }
 }
 
-.error {
+.practice__error {
   padding: 0.9rem 1.1rem;
   border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
   border-radius: 0.6rem;
   background: color-mix(in srgb, var(--danger) 12%, transparent);
-}
-
-.feedback {
-  display: grid;
-  gap: 2rem;
-  margin-top: 2rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border);
-}
-
-.summary {
-  margin: 0;
-  font-size: 1.1rem;
-}
-
-.dimensions {
-  display: grid;
-  gap: 1.5rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.dimension-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 1rem;
-}
-
-.dimension-name {
-  font-weight: 600;
-}
-
-.score {
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-}
-
-.score-max {
-  color: var(--muted);
-  font-weight: 400;
-}
-
-.meter {
-  display: block;
-  height: 0.35rem;
-  margin: 0.5rem 0;
-  border-radius: 999px;
-  background: var(--border);
-  overflow: hidden;
-}
-
-.meter span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--accent);
-}
-
-.note {
-  margin: 0;
-  color: var(--muted);
-}
-
-.fix-its {
-  padding: 1.25rem 1.5rem;
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
-  background: var(--surface);
-}
-
-.fix-its h2 {
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.fix-its ol {
-  margin: 0.75rem 0 0;
-  padding-left: 1.25rem;
-  display: grid;
-  gap: 0.5rem;
-}
-
-.readiness {
-  display: grid;
-  gap: 0.25rem;
-  margin: 0;
-  font-weight: 600;
-}
-
-.readiness.ready {
-  color: var(--good);
-}
-
-.readiness.not-ready {
-  color: var(--muted);
-}
-
-.readiness-caveat {
-  font-weight: 400;
-  font-size: 0.85rem;
-  color: var(--muted);
 }

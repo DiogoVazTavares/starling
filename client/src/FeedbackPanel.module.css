@@ -1,0 +1,108 @@
+/**
+ * The rubric feedback panel (ticket 002). BEM block: `feedback`.
+ */
+
+.feedback {
+  display: grid;
+  gap: 2rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.feedback__summary {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.feedback__dimensions {
+  display: grid;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feedback__dimension-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.feedback__dimension-name {
+  font-weight: 600;
+}
+
+.feedback__score {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.feedback__score-max {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.feedback__meter {
+  display: block;
+  height: 0.35rem;
+  margin: 0.5rem 0;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.feedback__meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+}
+
+.feedback__note {
+  margin: 0;
+  color: var(--muted);
+}
+
+.feedback__fix-its {
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--surface);
+}
+
+.feedback__fix-its-title {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.feedback__fix-its-list {
+  margin: 0.75rem 0 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.feedback__readiness {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.feedback__readiness--ready {
+  color: var(--good);
+}
+
+.feedback__readiness--not-ready {
+  color: var(--muted);
+}
+
+.feedback__readiness-caveat {
+  font-weight: 400;
+  font-size: 0.85rem;
+  color: var(--muted);
+}

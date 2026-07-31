@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { requestFeedback, type Feedback } from './api';
-import { toMono16kWavBase64 } from './audio/wav';
+import { type Feedback, requestFeedback } from './api';
 import { useRecorder } from './audio/useRecorder';
+import { toMono16kWavBase64 } from './audio/wav';
 import { QUESTION_BANK } from './questions';
 
 /**
@@ -37,27 +37,35 @@ export function usePracticeSession() {
   const question = QUESTION_BANK[questionIndex];
   const canNavigate = phase === 'ready' || phase === 'reviewing';
 
-  function clearReview() {
+  // Memoized so the callbacks below can list them as dependencies honestly. Both close over
+  // nothing but setState functions, which React keeps stable, so their identity never changes.
+  const clearReview = useCallback(() => {
     setReviewBlob(null);
     setReviewUrl((existing) => {
       if (existing) URL.revokeObjectURL(existing);
       return null;
     });
-  }
+  }, []);
 
-  function goToQuestion(index: number) {
-    setQuestionIndex(index);
-    clearReview();
-    setFeedback(null);
-    setError(null);
-    setAttempt(0);
-    setPhase('ready');
-  }
+  const goToQuestion = useCallback(
+    (index: number) => {
+      setQuestionIndex(index);
+      clearReview();
+      setFeedback(null);
+      setError(null);
+      setAttempt(0);
+      setPhase('ready');
+    },
+    [clearReview],
+  );
 
-  const previous = useCallback(() => goToQuestion(Math.max(questionIndex - 1, 0)), [questionIndex]);
+  const previous = useCallback(
+    () => goToQuestion(Math.max(questionIndex - 1, 0)),
+    [questionIndex, goToQuestion],
+  );
   const next = useCallback(
     () => goToQuestion(Math.min(questionIndex + 1, QUESTION_BANK.length - 1)),
-    [questionIndex],
+    [questionIndex, goToQuestion],
   );
 
   const start = useCallback(async () => {
@@ -75,7 +83,7 @@ export function usePracticeSession() {
           : describe(cause),
       );
     }
-  }, [recorder]);
+  }, [recorder, clearReview]);
 
   const stopToReview = useCallback(async () => {
     try {
@@ -107,8 +115,7 @@ export function usePracticeSession() {
       setError(describe(cause));
       setPhase('reviewing');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reviewBlob, question]);
+  }, [reviewBlob, question, clearReview]);
 
   return {
     question,

@@ -1,3 +1,8 @@
+/**
+ * The only global stylesheet: design tokens and bare-element base styles. Anything that styles
+ * a component belongs in that component's `*.module.css`, named with BEM.
+ */
+
 :root {
   --bg: #0f1115;
   --surface: #171a21;
