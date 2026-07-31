@@ -1,0 +1,458 @@
+/* PROTOTYPE-ONLY styles for wayfinder ticket 005's three variants + the switcher bar. */
+
+.prototype-switcher {
+  position: fixed;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
+  background: #ffb020;
+  color: #1a1300;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  font-size: 0.85rem;
+  font-weight: 700;
+  z-index: 999;
+}
+
+.prototype-switcher button {
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: #1a1300;
+  color: #ffb020;
+}
+
+/* ---------- Variant A: Wizard ---------- */
+
+.wizard {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 6rem;
+}
+
+.wizard-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.wizard-nav button {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.wizard-progress {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.wizard-question {
+  margin: 2rem 0;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.wizard-step {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.wizard-step-inner {
+  display: grid;
+  justify-items: center;
+  gap: 1.25rem;
+  text-align: center;
+}
+
+.wizard-cta {
+  padding: 1rem 2.25rem;
+  font-size: 1rem;
+}
+
+.wizard-cta.record {
+  background: var(--accent);
+  color: #0f1115;
+}
+
+.wizard-cta.stop {
+  background: var(--danger);
+  color: #0f1115;
+}
+
+.wizard-cta.secondary {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.wizard-review-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.wizard-player {
+  width: 100%;
+  min-width: 20rem;
+}
+
+.wizard-hint {
+  color: var(--muted);
+  margin: 0;
+}
+
+.wizard-timer {
+  font-variant-numeric: tabular-nums;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.wizard-mic {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--danger);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.wizard-spinner {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.wizard-feedback {
+  margin-top: 2rem;
+  display: grid;
+  gap: 1.5rem;
+}
+
+/* ---------- Variant B: Timeline ---------- */
+
+.timeline {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 6rem;
+}
+
+.timeline-header {
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  gap: 0.75rem;
+}
+
+.timeline-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.timeline-nav button {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.4rem 0.8rem;
+}
+
+.timeline-progress {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-question {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.timeline-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.timeline-record {
+  background: var(--accent);
+  color: #0f1115;
+}
+
+.timeline-stop {
+  background: var(--danger);
+  color: #0f1115;
+}
+
+.timeline-secondary {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.timeline-timer {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.timeline-review {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.timeline-log {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.timeline-card {
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--surface);
+  display: grid;
+  gap: 0.75rem;
+}
+
+.timeline-card-pending {
+  position: relative;
+  overflow: hidden;
+  color: var(--muted);
+}
+
+.timeline-shimmer {
+  height: 0.5rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--border), var(--accent), var(--border));
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.timeline-card-head {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+}
+
+.timeline-card-audio {
+  width: 100%;
+}
+
+.chip {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: var(--border);
+  color: var(--muted);
+}
+
+.chip-ready {
+  background: color-mix(in srgb, var(--good) 25%, transparent);
+  color: var(--good);
+}
+
+.timeline-scores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.score-chip {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.timeline-fixits {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.timeline-empty {
+  color: var(--muted);
+  text-align: center;
+  padding: 2rem 0;
+}
+
+/* ---------- Variant C: Split cockpit ---------- */
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(20rem, 28rem) 1fr;
+  min-height: 100vh;
+}
+
+.split-pane {
+  padding: 2.5rem 2rem;
+}
+
+.split-controls {
+  border-right: 1px solid var(--border);
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+}
+
+.split-nav {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.split-nav button {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.split-question {
+  font-size: 1.3rem;
+  margin: 0 0 0.5rem;
+}
+
+.split-recorder {
+  display: grid;
+  gap: 1rem;
+  justify-items: start;
+}
+
+.split-review {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.split-review-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.split-review-actions button {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.split-review-actions button.record {
+  background: var(--accent);
+  color: #0f1115;
+  border: none;
+}
+
+.split-feedback {
+  display: grid;
+  align-content: start;
+  gap: 1.25rem;
+}
+
+.split-placeholder {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.readiness-banner {
+  margin: 0;
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.readiness-banner.ready {
+  color: var(--good);
+  border-color: color-mix(in srgb, var(--good) 45%, transparent);
+}
+
+.scorecard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.scorecard-cell {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  background: var(--surface);
+}
+
+.scorecard-cell-head {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.fixit-checklist {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.split-skeleton {
+  display: grid;
+  gap: 1rem;
+}
+
+.skeleton-line,
+.skeleton-card {
+  border-radius: 0.6rem;
+  background: linear-gradient(90deg, var(--surface), var(--border), var(--surface));
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-summary {
+  height: 1.5rem;
+  width: 80%;
+}
+
+.skeleton-card {
+  height: 4.5rem;
+}
+
+@media (max-width: 48rem) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+  .split-controls {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+}

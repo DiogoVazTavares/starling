@@ -86,9 +86,13 @@ No issue tracker is configured, so this map uses the local-markdown fallback:
 
 <!-- the frontier: open + unblocked + unassigned -->
 
-- [005 — Prototype the practice-screen UX](tickets/005-prototype-practice-ux.md) — unassigned.
 - [010 — Persist attempt history across sessions](tickets/010-persist-attempt-history.md) —
   unassigned.
+
+### In progress
+
+- [005 — Prototype the practice-screen UX](tickets/005-prototype-practice-ux.md) — claimed;
+  three variants built and verified, awaiting the human's reaction to settle a direction.
 
 ## Not yet specified
 
