@@ -81,6 +81,15 @@ No issue tracker is configured, so this map uses the local-markdown fallback:
   navigates it (Previous/Next, clamped at both ends — no wrap-around). Category is in the data
   shape but not shown in the UI yet (deferred to 005). Verified end-to-end in a running dev
   server; `tsc -b`/`oxlint`/`vite build` all clean.
+- [Prototype the practice-screen UX](tickets/005-prototype-practice-ux.md) — three
+  structurally different variants built and reacted to; **Guided steps won** — one phase
+  fills the screen at a time (record → review/playback → re-record → submit → analyzing →
+  feedback), reusing the existing `FeedbackPanel` as-is. The key gap it closed: recordings
+  are no longer auto-submitted — there's now a **review step** to listen back and re-record
+  before sending. Folded into `client/src/App.tsx` + `client/src/usePracticeSession.ts`; the
+  "Session log" and "Cockpit" variants were rejected (log overlaps 010's job; cockpit felt
+  heavier than a single-question loop needs). Category display was still out of scope here —
+  stays unresolved fog.
 
 ## Open tickets
 
@@ -89,11 +98,6 @@ No issue tracker is configured, so this map uses the local-markdown fallback:
 - [010 — Persist attempt history across sessions](tickets/010-persist-attempt-history.md) —
   unassigned.
 
-### In progress
-
-- [005 — Prototype the practice-screen UX](tickets/005-prototype-practice-ux.md) — claimed;
-  three variants built and verified, awaiting the human's reaction to settle a direction.
-
 ## Not yet specified
 
 <!-- in-scope fog; graduates into tickets as the frontier advances -->
@@ -101,6 +105,8 @@ No issue tracker is configured, so this map uses the local-markdown fallback:
 - Comparing attempts over time / surfacing improvement trends.
 - Deployment / hosting (client static host + Hono on a Node host or serverless, with the
   Gemini key as a host secret). Deferred from ticket 004 — the slice runs locally.
+- Whether/where question category should surface in the UI (nav, header, or not at all) —
+  deferred from ticket 011, untouched by 005.
 
 ## Out of scope
 

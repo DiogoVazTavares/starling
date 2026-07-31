@@ -1,24 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { requestFeedback, type Feedback } from '../api';
-import { toMono16kWavBase64 } from '../audio/wav';
-import { useRecorder } from '../audio/useRecorder';
-import { QUESTION_BANK } from '../questions';
+import { requestFeedback, type Feedback } from './api';
+import { toMono16kWavBase64 } from './audio/wav';
+import { useRecorder } from './audio/useRecorder';
+import { QUESTION_BANK } from './questions';
 
 /**
- * PROTOTYPE (wayfinder ticket 005) — shared state/logic behind all three practice-screen
- * variants. This is the part that ISN'T under question (recording, submission, question
- * nav); only how it's rendered differs per variant. No persistence — history lives in memory
- * for the current tab only, same as the real app today (cross-session persistence is 010).
+ * Practice-screen state machine, per wayfinder ticket 005: record -> review (listen back,
+ * re-record if needed) -> submit -> feedback. Free navigation throughout (ticket 002) —
+ * there's no pass/lock gate, `canNavigate` just guards against orphaning an in-flight
+ * recording or request.
  */
-
 export type Phase = 'ready' | 'recording' | 'reviewing' | 'analyzing';
-
-export interface Attempt {
-  attemptNumber: number;
-  feedback: Feedback;
-  /** Object URL for that attempt's own recording, so past attempts stay replayable. */
-  audioUrl: string;
-}
 
 export function usePracticeSession() {
   const recorder = useRecorder();
@@ -26,8 +18,9 @@ export function usePracticeSession() {
   const [phase, setPhase] = useState<Phase>('ready');
   const [reviewBlob, setReviewBlob] = useState<Blob | null>(null);
   const [reviewUrl, setReviewUrl] = useState<string | null>(null);
-  const [history, setHistory] = useState<Attempt[]>([]);
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
   const reviewUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -42,36 +35,34 @@ export function usePracticeSession() {
   }, []);
 
   const question = QUESTION_BANK[questionIndex];
-  const latest = history.at(-1) ?? null;
   const canNavigate = phase === 'ready' || phase === 'reviewing';
 
   function clearReview() {
     setReviewBlob(null);
-    if (reviewUrl) URL.revokeObjectURL(reviewUrl);
-    setReviewUrl(null);
+    setReviewUrl((existing) => {
+      if (existing) URL.revokeObjectURL(existing);
+      return null;
+    });
   }
 
   function goToQuestion(index: number) {
     setQuestionIndex(index);
     clearReview();
-    setHistory([]);
+    setFeedback(null);
     setError(null);
+    setAttempt(0);
     setPhase('ready');
   }
 
-  const previous = useCallback(
-    () => goToQuestion(Math.max(questionIndex - 1, 0)),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [questionIndex, reviewUrl],
-  );
+  const previous = useCallback(() => goToQuestion(Math.max(questionIndex - 1, 0)), [questionIndex]);
   const next = useCallback(
     () => goToQuestion(Math.min(questionIndex + 1, QUESTION_BANK.length - 1)),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [questionIndex, reviewUrl],
+    [questionIndex],
   );
 
   const start = useCallback(async () => {
     setError(null);
+    setFeedback(null);
     clearReview();
     try {
       await recorder.start();
@@ -84,8 +75,7 @@ export function usePracticeSession() {
           : describe(cause),
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [recorder, reviewUrl]);
+  }, [recorder]);
 
   const stopToReview = useCallback(async () => {
     try {
@@ -109,20 +99,16 @@ export function usePracticeSession() {
     setError(null);
     try {
       const wavBase64 = await toMono16kWavBase64(reviewBlob);
-      const feedback = await requestFeedback(question.prompt, wavBase64);
-      setHistory((existing) => [
-        ...existing,
-        { attemptNumber: existing.length + 1, feedback, audioUrl: reviewUrl! },
-      ]);
-      setReviewBlob(null);
-      setReviewUrl(null); // ownership moves to the history entry; don't revoke it here
+      setFeedback(await requestFeedback(question.prompt, wavBase64));
+      setAttempt((count) => count + 1);
+      clearReview();
       setPhase('ready');
     } catch (cause) {
       setError(describe(cause));
       setPhase('reviewing');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reviewBlob, reviewUrl, question]);
+  }, [reviewBlob, question]);
 
   return {
     question,
@@ -130,9 +116,9 @@ export function usePracticeSession() {
     questionCount: QUESTION_BANK.length,
     phase,
     reviewUrl,
-    history,
-    latest,
+    feedback,
     error,
+    attempt,
     canNavigate,
     elapsedSeconds: recorder.elapsedSeconds,
     start,
@@ -144,7 +130,7 @@ export function usePracticeSession() {
   };
 }
 
-export function describe(cause: unknown): string {
+function describe(cause: unknown): string {
   return cause instanceof Error ? cause.message : String(cause);
 }
 
