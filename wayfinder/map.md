@@ -77,13 +77,13 @@ No issue tracker is configured, so this map uses the local-markdown fallback:
 
 - [003 — Define the question bank](tickets/003-question-bank.md) — unassigned.
 - [005 — Prototype the practice-screen UX](tickets/005-prototype-practice-ux.md) — unassigned.
+- [010 — Persist attempt history across sessions](tickets/010-persist-attempt-history.md) —
+  unassigned.
 
 ## Not yet specified
 
 <!-- in-scope fog; graduates into tickets as the frontier advances -->
 
-- Progress tracking / history persistence (a database + data model to store past attempts,
-  feedback, and scores per question).
 - Comparing attempts over time / surfacing improvement trends.
 - Deployment / hosting (client static host + Hono on a Node host or serverless, with the
   Gemini key as a host secret). Deferred from ticket 004 — the slice runs locally.
