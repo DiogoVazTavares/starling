@@ -1,3 +1,8 @@
+/**
+ * The only global stylesheet: design tokens and bare-element base styles. Anything that styles
+ * a component belongs in that component's `*.module.css`, named with BEM.
+ */
+
 :root {
   --bg: #0f1115;
   --surface: #171a21;
@@ -9,7 +14,12 @@
   --good: #4ade80;
 
   color-scheme: dark;
-  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
   line-height: 1.55;
 }
 

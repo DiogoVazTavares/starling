@@ -1,8 +1,22 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
+  "plugins": ["react", "typescript", "oxc", "unicorn", "import", "jsx-a11y", "promise"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "perf": "warn"
+  },
+  "ignorePatterns": ["dist"],
   "rules": {
     "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
+    "react/exhaustive-deps": "error",
+    "react/only-export-components": ["warn", { "allowConstantExport": true }],
+    // Vite compiles JSX with the automatic runtime (`jsx: react-jsx`), so React needs no import.
+    "react/react-in-jsx-scope": "off",
+    // Global stylesheets are imported for their side effect, which is the point.
+    "import/no-unassigned-import": ["error", { "allow": ["**/*.css"] }],
+    // useRecorder assigns one `on*` handler per `stop()` call on purpose — `addEventListener`
+    // would accumulate a handler per call instead of replacing the previous one.
+    "unicorn/prefer-add-event-listener": "off"
   }
 }

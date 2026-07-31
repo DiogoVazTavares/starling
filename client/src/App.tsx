@@ -4,9 +4,13 @@ import { requestFeedback, type Feedback } from './api';
 import { toMono16kWavBase64 } from './audio/wav';
 import { useRecorder } from './audio/useRecorder';
 import { QUESTION_BANK } from './questions';
-import './App.css';
+import styles from './App.module.css';
 
 type Phase = 'ready' | 'recording' | 'analyzing';
+
+// A BEM modifier never stands alone, so each action button carries its element class too.
+const RECORD_BUTTON_CLASS = `${styles.practice__action} ${styles['practice__action--record']}`;
+const STOP_BUTTON_CLASS = `${styles.practice__action} ${styles['practice__action--stop']}`;
 
 export default function App() {
   const recorder = useRecorder();
@@ -70,21 +74,27 @@ export default function App() {
   const isAnalyzing = phase === 'analyzing';
 
   return (
-    <main>
+    <main className={styles.practice}>
       <header>
-        <p className="eyebrow">
+        <p className={styles.practice__eyebrow}>
           Question {questionIndex + 1} of {QUESTION_BANK.length}
           {attempt > 0 && ` · attempt ${attempt + 1}`}
         </p>
-        <h1>{question.prompt}</h1>
+        <h1 className={styles.practice__question}>{question.prompt}</h1>
       </header>
 
-      <nav className="question-nav">
-        <button type="button" onClick={handlePrevious} disabled={!canNavigate || questionIndex === 0}>
+      <nav className={styles.practice__nav}>
+        <button
+          type="button"
+          className={styles['practice__nav-button']}
+          onClick={handlePrevious}
+          disabled={!canNavigate || questionIndex === 0}
+        >
           ← Previous
         </button>
         <button
           type="button"
+          className={styles['practice__nav-button']}
           onClick={handleNext}
           disabled={!canNavigate || questionIndex === QUESTION_BANK.length - 1}
         >
@@ -92,21 +102,27 @@ export default function App() {
         </button>
       </nav>
 
-      <div className="controls">
+      <div className={styles.practice__controls}>
         {phase === 'recording' ? (
-          <button type="button" className="stop" onClick={handleStop}>
+          <button type="button" className={STOP_BUTTON_CLASS} onClick={handleStop}>
             Stop &amp; get feedback
           </button>
         ) : (
-          <button type="button" className="record" onClick={handleStart} disabled={isAnalyzing}>
+          <button
+            type="button"
+            className={RECORD_BUTTON_CLASS}
+            onClick={handleStart}
+            disabled={isAnalyzing}
+          >
             {feedback ? 'Try again' : 'Start recording'}
           </button>
         )}
 
-        <span className="status" aria-live="polite">
+        <span className={styles.practice__status} aria-live="polite">
           {phase === 'recording' && (
             <>
-              <span className="pulse" /> Recording · {formatDuration(recorder.elapsedSeconds)}
+              <span className={styles.practice__pulse} /> Recording ·{' '}
+              {formatDuration(recorder.elapsedSeconds)}
             </>
           )}
           {isAnalyzing && 'Listening to your answer…'}
@@ -114,7 +130,7 @@ export default function App() {
       </div>
 
       {error && (
-        <p className="error" role="alert">
+        <p className={styles.practice__error} role="alert">
           {error}
         </p>
       )}

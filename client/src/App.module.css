@@ -1,0 +1,95 @@
+/**
+ * The practice screen. BEM block: `practice`.
+ *
+ * Design tokens and bare-element base styles (including the shared `button` shape) are global
+ * and live in index.css — everything here is scoped to this component.
+ */
+
+.practice {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 6rem;
+}
+
+.practice__eyebrow {
+  margin: 0 0 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.practice__question {
+  font-size: 1.6rem;
+}
+
+.practice__nav {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.practice__nav-button {
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.practice__controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 2rem 0;
+}
+
+/* Dark text on a bright fill, whichever fill the modifier picks. */
+.practice__action {
+  color: var(--bg);
+}
+
+.practice__action--record {
+  background: var(--accent);
+}
+
+.practice__action--stop {
+  background: var(--danger);
+}
+
+.practice__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.practice__pulse {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--danger);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .practice__pulse {
+    animation: none;
+  }
+}
+
+.practice__error {
+  padding: 0.9rem 1.1rem;
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+  border-radius: 0.6rem;
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}

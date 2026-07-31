@@ -4,13 +4,7 @@
  */
 
 export type Category =
-  | 'leadership'
-  | 'conflict'
-  | 'failure'
-  | 'teamwork'
-  | 'ambiguity'
-  | 'impact'
-  | 'prioritization';
+  'leadership' | 'conflict' | 'failure' | 'teamwork' | 'ambiguity' | 'impact' | 'prioritization';
 
 export interface Question {
   id: string;
@@ -44,7 +38,8 @@ export const QUESTION_BANK: Question[] = [
   {
     id: 'conflict-code-review-disagreement',
     category: 'conflict',
-    prompt: 'Tell me about a time you disagreed with a code review decision and how you resolved it.',
+    prompt:
+      'Tell me about a time you disagreed with a code review decision and how you resolved it.',
   },
   {
     id: 'conflict-stakeholder-scope',
@@ -111,7 +106,8 @@ export const QUESTION_BANK: Question[] = [
   {
     id: 'impact-unprompted-fix',
     category: 'impact',
-    prompt: 'Tell me about a time you identified and fixed a problem nobody had asked you to look at.',
+    prompt:
+      'Tell me about a time you identified and fixed a problem nobody had asked you to look at.',
   },
   {
     id: 'prioritization-competing-deadlines',
@@ -126,6 +122,7 @@ export const QUESTION_BANK: Question[] = [
   {
     id: 'prioritization-said-no',
     category: 'prioritization',
-    prompt: 'Tell me about a time you had to say no to a request in order to protect your priorities.',
+    prompt:
+      'Tell me about a time you had to say no to a request in order to protect your priorities.',
   },
 ];

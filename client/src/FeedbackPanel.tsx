@@ -1,33 +1,44 @@
 import type { Feedback } from './api';
+import styles from './FeedbackPanel.module.css';
 
 const MAX_SCORE = 5;
 
+// A BEM modifier never stands alone, so each variant carries its element class too.
+const READY_CLASS = `${styles.feedback__readiness} ${styles['feedback__readiness--ready']}`;
+const NOT_READY_CLASS = `${styles.feedback__readiness} ${styles['feedback__readiness--not-ready']}`;
+
 export function FeedbackPanel({ feedback }: { feedback: Feedback }) {
   return (
-    <section className="feedback">
-      <p className="summary">{feedback.overallSummary}</p>
+    <section className={styles.feedback}>
+      <p className={styles.feedback__summary}>{feedback.overallSummary}</p>
 
-      <ul className="dimensions">
+      <ul className={styles.feedback__dimensions}>
         {feedback.dimensions.map((dimension) => (
           <li key={dimension.name}>
-            <div className="dimension-head">
-              <span className="dimension-name">{dimension.name}</span>
-              <span className="score" aria-label={`${dimension.score} out of ${MAX_SCORE}`}>
+            <div className={styles['feedback__dimension-head']}>
+              <span className={styles['feedback__dimension-name']}>{dimension.name}</span>
+              <span
+                className={styles.feedback__score}
+                aria-label={`${dimension.score} out of ${MAX_SCORE}`}
+              >
                 {dimension.score}
-                <span className="score-max">/{MAX_SCORE}</span>
+                <span className={styles['feedback__score-max']}>/{MAX_SCORE}</span>
               </span>
             </div>
-            <div className="meter" role="presentation">
-              <span style={{ width: `${(dimension.score / MAX_SCORE) * 100}%` }} />
+            <div className={styles.feedback__meter} role="presentation">
+              <span
+                className={styles['feedback__meter-fill']}
+                style={{ width: `${(dimension.score / MAX_SCORE) * 100}%` }}
+              />
             </div>
-            <p className="note">{dimension.note}</p>
+            <p className={styles.feedback__note}>{dimension.note}</p>
           </li>
         ))}
       </ul>
 
-      <div className="fix-its">
-        <h2>Next time</h2>
-        <ol>
+      <div className={styles['feedback__fix-its']}>
+        <h2 className={styles['feedback__fix-its-title']}>Next time</h2>
+        <ol className={styles['feedback__fix-its-list']}>
           {feedback.fixIts.map((fix) => (
             <li key={fix}>{fix}</li>
           ))}
@@ -35,11 +46,13 @@ export function FeedbackPanel({ feedback }: { feedback: Feedback }) {
       </div>
 
       {/* Advisory, never a gate (ticket 002) — the label has to say so. */}
-      <p className={`readiness ${feedback.interviewReady ? 'ready' : 'not-ready'}`}>
+      <p className={feedback.interviewReady ? READY_CLASS : NOT_READY_CLASS}>
         {feedback.interviewReady
           ? 'This would land well in a real interview.'
           : 'This one needs another pass.'}
-        <span className="readiness-caveat">Guidance, not a verdict — you decide when to move on.</span>
+        <span className={styles['feedback__readiness-caveat']}>
+          Guidance, not a verdict — you decide when to move on.
+        </span>
       </p>
     </section>
   );

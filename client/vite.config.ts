@@ -1,7 +1,7 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
-const SERVER_PORT = process.env.SERVER_PORT ?? '8787'
+const SERVER_PORT = process.env.SERVER_PORT ?? '8787';
 
 export default defineConfig({
   plugins: [react()],
@@ -11,4 +11,4 @@ export default defineConfig({
       '/api': `http://localhost:${SERVER_PORT}`,
     },
   },
-})
+});
