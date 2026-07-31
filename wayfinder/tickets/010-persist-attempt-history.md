@@ -2,7 +2,7 @@
 
 - Type: wayfinder:grilling
 - Status: open
-- Assignee:
+- Assignee: claude
 - Blocked by: (none)
 - Parent: wayfinder/map.md
 
