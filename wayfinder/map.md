@@ -81,6 +81,12 @@ No issue tracker is configured, so this map uses the local-markdown fallback:
   navigates it (Previous/Next, clamped at both ends — no wrap-around). Category is in the data
   shape but not shown in the UI yet (deferred to 005). Verified end-to-end in a running dev
   server; `tsc -b`/`oxlint`/`vite build` all clean.
+- [Persist attempt history across sessions](tickets/010-persist-attempt-history.md) —
+  **single-machine, `localStorage`, one flat list tagged by `questionId`.** Each record is
+  `{ id, questionId, timestamp, feedback }` — feedback JSON only, no transcript (none exists
+  today) and no raw audio (ruled out, not deferred). Keep forever; user can bulk-delete
+  entries. No backend, no sync. Trends/comparison stays separate fog; a future
+  transcript-in-the-response option is newly flagged as fog too.
 - [Prototype the practice-screen UX](tickets/005-prototype-practice-ux.md) — three
   structurally different variants built and reacted to; **Guided steps won** — one phase
   fills the screen at a time (record → review/playback → re-record → submit → analyzing →
@@ -95,14 +101,17 @@ No issue tracker is configured, so this map uses the local-markdown fallback:
 
 <!-- the frontier: open + unblocked + unassigned -->
 
-- [010 — Persist attempt history across sessions](tickets/010-persist-attempt-history.md) —
-  unassigned.
+None right now — both 010 and 005 are closed. The next session should graduate a patch of
+**Not yet specified** below into fresh tickets.
 
 ## Not yet specified
 
 <!-- in-scope fog; graduates into tickets as the frontier advances -->
 
-- Comparing attempts over time / surfacing improvement trends.
+- Comparing attempts over time / surfacing improvement trends, built on the attempt-history
+  data model from ticket 010.
+- Whether to ever add a transcript of the spoken answer (would require a Gemini schema/prompt
+  change) — surfaced while resolving ticket 010, ruled out of that ticket's scope.
 - Deployment / hosting (client static host + Hono on a Node host or serverless, with the
   Gemini key as a host secret). Deferred from ticket 004 — the slice runs locally.
 - Whether/where question category should surface in the UI (nav, header, or not at all) —
