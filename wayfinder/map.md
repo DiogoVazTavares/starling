@@ -87,12 +87,22 @@ No issue tracker is configured, so this map uses the local-markdown fallback:
   today) and no raw audio (ruled out, not deferred). Keep forever; user can bulk-delete
   entries. No backend, no sync. Trends/comparison stays separate fog; a future
   transcript-in-the-response option is newly flagged as fog too.
+- [Prototype the practice-screen UX](tickets/005-prototype-practice-ux.md) — three
+  structurally different variants built and reacted to; **Guided steps won** — one phase
+  fills the screen at a time (record → review/playback → re-record → submit → analyzing →
+  feedback), reusing the existing `FeedbackPanel` as-is. The key gap it closed: recordings
+  are no longer auto-submitted — there's now a **review step** to listen back and re-record
+  before sending. Folded into `client/src/App.tsx` + `client/src/usePracticeSession.ts`; the
+  "Session log" and "Cockpit" variants were rejected (log overlaps 010's job; cockpit felt
+  heavier than a single-question loop needs). Category display was still out of scope here —
+  stays unresolved fog.
 
 ## Open tickets
 
 <!-- the frontier: open + unblocked + unassigned -->
 
-- [005 — Prototype the practice-screen UX](tickets/005-prototype-practice-ux.md) — unassigned.
+None right now — both 010 and 005 are closed. The next session should graduate a patch of
+**Not yet specified** below into fresh tickets.
 
 ## Not yet specified
 
@@ -104,6 +114,8 @@ No issue tracker is configured, so this map uses the local-markdown fallback:
   change) — surfaced while resolving ticket 010, ruled out of that ticket's scope.
 - Deployment / hosting (client static host + Hono on a Node host or serverless, with the
   Gemini key as a host secret). Deferred from ticket 004 — the slice runs locally.
+- Whether/where question category should surface in the UI (nav, header, or not at all) —
+  deferred from ticket 011, untouched by 005.
 
 ## Out of scope
 
