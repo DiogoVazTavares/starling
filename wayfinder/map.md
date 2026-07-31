@@ -70,12 +70,17 @@ No issue tracker is configured, so this map uses the local-markdown fallback:
   **keep the audio path** (008's transcribe-then-text fallback stays unbuilt). ~9 s per attempt.
   Code lives in `client/` + `server/`. One gotcha cost the first run: **never set
   `response_mime_type` alongside `response_format`** — see [research/gemini-audio.md](research/gemini-audio.md).
+- [Define the question bank](tickets/003-question-bank.md) — **7 categories** (leadership,
+  conflict, failure/mistake, teamwork/collaboration, ambiguity, impact/results,
+  prioritization/time-management) **× 3 = 21 questions**, hand-curated fixed list, SW-flavored
+  but not leveled by seniority. Shape: `{ id, category, prompt }`, no probes. Slice's existing
+  question kept as-is, folded in as `conflict`'s first entry. Content authoring + wiring is a
+  separate task (011); attempt-history persistence spun off as its own ticket (010).
 
 ## Open tickets
 
 <!-- the frontier: open + unblocked + unassigned -->
 
-- [003 — Define the question bank](tickets/003-question-bank.md) — unassigned.
 - [005 — Prototype the practice-screen UX](tickets/005-prototype-practice-ux.md) — unassigned.
 - [010 — Persist attempt history across sessions](tickets/010-persist-attempt-history.md) —
   unassigned.
