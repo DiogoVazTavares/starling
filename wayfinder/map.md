@@ -76,6 +76,11 @@ No issue tracker is configured, so this map uses the local-markdown fallback:
   but not leveled by seniority. Shape: `{ id, category, prompt }`, no probes. Slice's existing
   question kept as-is, folded in as `conflict`'s first entry. Content authoring + wiring is a
   separate task (011); attempt-history persistence spun off as its own ticket (010).
+- [Author the question bank + wire it into the app](tickets/011-build-question-bank.md) —
+  **built.** `client/src/questions.ts` holds the 21-question bank; `client/src/App.tsx`
+  navigates it (Previous/Next, clamped at both ends — no wrap-around). Category is in the data
+  shape but not shown in the UI yet (deferred to 005). Verified end-to-end in a running dev
+  server; `tsc -b`/`oxlint`/`vite build` all clean.
 
 ## Open tickets
 

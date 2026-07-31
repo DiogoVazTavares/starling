@@ -3,19 +3,39 @@ import { FeedbackPanel } from './FeedbackPanel';
 import { requestFeedback, type Feedback } from './api';
 import { toMono16kWavBase64 } from './audio/wav';
 import { useRecorder } from './audio/useRecorder';
+import { QUESTION_BANK } from './questions';
 import './App.css';
-
-/** One hardcoded question — the question bank is ticket 003, deliberately out of this slice. */
-const QUESTION = 'Tell me about a time you had to give difficult feedback to a colleague.';
 
 type Phase = 'ready' | 'recording' | 'analyzing';
 
 export default function App() {
   const recorder = useRecorder();
+  const [questionIndex, setQuestionIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>('ready');
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
+
+  const question = QUESTION_BANK[questionIndex];
+  // Not a pass/lock gate (ticket 002 rules that out) — just guards against switching
+  // questions mid-recording or mid-request, which would orphan the recorder or attribute
+  // an in-flight response to the wrong question.
+  const canNavigate = phase === 'ready';
+
+  function goToQuestion(index: number) {
+    setQuestionIndex(index);
+    setFeedback(null);
+    setError(null);
+    setAttempt(0);
+  }
+
+  function handlePrevious() {
+    goToQuestion(Math.max(questionIndex - 1, 0));
+  }
+
+  function handleNext() {
+    goToQuestion(Math.min(questionIndex + 1, QUESTION_BANK.length - 1));
+  }
 
   async function handleStart() {
     setError(null);
@@ -38,7 +58,7 @@ export default function App() {
     try {
       const recorded = await recorder.stop();
       const wavBase64 = await toMono16kWavBase64(recorded);
-      setFeedback(await requestFeedback(QUESTION, wavBase64));
+      setFeedback(await requestFeedback(question.prompt, wavBase64));
       setAttempt((count) => count + 1);
     } catch (cause) {
       setError(describe(cause));
@@ -52,9 +72,25 @@ export default function App() {
   return (
     <main>
       <header>
-        <p className="eyebrow">Behavioral practice{attempt > 0 && ` · attempt ${attempt + 1}`}</p>
-        <h1>{QUESTION}</h1>
+        <p className="eyebrow">
+          Question {questionIndex + 1} of {QUESTION_BANK.length}
+          {attempt > 0 && ` · attempt ${attempt + 1}`}
+        </p>
+        <h1>{question.prompt}</h1>
       </header>
+
+      <nav className="question-nav">
+        <button type="button" onClick={handlePrevious} disabled={!canNavigate || questionIndex === 0}>
+          ← Previous
+        </button>
+        <button
+          type="button"
+          onClick={handleNext}
+          disabled={!canNavigate || questionIndex === QUESTION_BANK.length - 1}
+        >
+          Next →
+        </button>
+      </nav>
 
       <div className="controls">
         {phase === 'recording' ? (
