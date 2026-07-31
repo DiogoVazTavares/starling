@@ -81,20 +81,27 @@ No issue tracker is configured, so this map uses the local-markdown fallback:
   navigates it (Previous/Next, clamped at both ends — no wrap-around). Category is in the data
   shape but not shown in the UI yet (deferred to 005). Verified end-to-end in a running dev
   server; `tsc -b`/`oxlint`/`vite build` all clean.
+- [Persist attempt history across sessions](tickets/010-persist-attempt-history.md) —
+  **single-machine, `localStorage`, one flat list tagged by `questionId`.** Each record is
+  `{ id, questionId, timestamp, feedback }` — feedback JSON only, no transcript (none exists
+  today) and no raw audio (ruled out, not deferred). Keep forever; user can bulk-delete
+  entries. No backend, no sync. Trends/comparison stays separate fog; a future
+  transcript-in-the-response option is newly flagged as fog too.
 
 ## Open tickets
 
 <!-- the frontier: open + unblocked + unassigned -->
 
 - [005 — Prototype the practice-screen UX](tickets/005-prototype-practice-ux.md) — unassigned.
-- [010 — Persist attempt history across sessions](tickets/010-persist-attempt-history.md) —
-  unassigned.
 
 ## Not yet specified
 
 <!-- in-scope fog; graduates into tickets as the frontier advances -->
 
-- Comparing attempts over time / surfacing improvement trends.
+- Comparing attempts over time / surfacing improvement trends, built on the attempt-history
+  data model from ticket 010.
+- Whether to ever add a transcript of the spoken answer (would require a Gemini schema/prompt
+  change) — surfaced while resolving ticket 010, ruled out of that ticket's scope.
 - Deployment / hosting (client static host + Hono on a Node host or serverless, with the
   Gemini key as a host secret). Deferred from ticket 004 — the slice runs locally.
 
