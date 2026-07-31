@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { FeedbackPanel } from './FeedbackPanel';
-import { requestFeedback, type Feedback } from './api';
-import { toMono16kWavBase64 } from './audio/wav';
-import { useRecorder } from './audio/useRecorder';
-import { QUESTION_BANK } from './questions';
 import styles from './App.module.css';
+import { type Feedback, requestFeedback } from './api';
+import { useRecorder } from './audio/useRecorder';
+import { toMono16kWavBase64 } from './audio/wav';
+import { FeedbackPanel } from './FeedbackPanel';
+import { QUESTION_BANK } from './questions';
 
 type Phase = 'ready' | 'recording' | 'analyzing';
 

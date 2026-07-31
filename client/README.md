@@ -14,8 +14,11 @@ Two layers, and the split is deliberate:
 
 Inside a module, class names follow BEM — `block`, `block__element`,
 `block__element--modifier`, kebab-case within each part. One block per component, named after
-it: `practice` in `App.module.css`, `feedback` in `FeedbackPanel.module.css`. Stylelint enforces
-the pattern, so a stray `.notBEM_Class` fails `npm run lint:css`.
+it: `practice` in `App.module.css`, `feedback` in `FeedbackPanel.module.css`.
+
+This is a convention we keep by hand, not a linted rule. Nothing fails if you write
+`.notBEM_Class` — enforcing it needed Stylelint, and Stylelint alone doubled the dependency
+tree, which isn't a trade worth making on a project this size.
 
 Two conventions worth knowing:
 
@@ -37,21 +40,27 @@ import styles from './App.module.css';
 
 One gap to be aware of: `styles` is typed as `Record<string, string>` by `vite/client`, so a
 misspelled `styles.pratice__nav` type-checks and silently renders `class="undefined"`. Nothing in
-the toolchain catches that today — see the note in the PR that introduced this layout if you want
-typed CSS modules.
+the toolchain catches that — Biome's `noUnusedClasses` / `noUndeclaredClasses` are the rules that
+would, and both are nursery-grade and don't work here (they flagged all 29 classes as unused while
+missing a real typo). Generating `.d.ts` files per module is the option if it ever bites.
 
 ## Checks
 
+[Biome](https://biomejs.dev) is the whole toolchain — formatter and linter, for TS, TSX, CSS and
+JSON, in one dependency. Config is `biome.json`.
+
 ```sh
-npm run check          # format:check + lint + lint:css + typecheck, in that order
-npm run format         # prettier --write .
-npm run format:check
-npm run lint           # oxlint
-npm run lint:css       # stylelint, including the BEM class pattern
+npm run check          # biome (format + lint) then tsc — the one to run before committing
+npm run fix            # biome check --write: formats and applies safe lint fixes
+npm run format         # formatting only
+npm run lint           # linting only
 npm run typecheck      # tsc -b (strict)
 npm run build          # typecheck + production build
 ```
 
-`npm run lint` fails on errors and reports warnings without failing — the severities in
-`.oxlintrc.json` are chosen, not accidental. Pass `--deny-warnings` if you'd rather warnings
-block too.
+Two things Biome does not cover:
+
+- **Markdown.** It has no Markdown formatter, so these README files are hand-formatted. Prettier
+  used to do it, and reflowed the root README's layout table on its first run.
+- **`public/`.** Excluded in `biome.json` — the favicon trips `noSvgWithoutTitle`, which is aimed
+  at inline SVG in markup, not static assets.

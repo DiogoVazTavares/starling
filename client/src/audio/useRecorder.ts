@@ -34,7 +34,9 @@ export function useRecorder(): Recorder {
     return () => {
       const recorder = recorderRef.current;
       if (recorder && recorder.state !== 'inactive') recorder.stop();
-      recorder?.stream.getTracks().forEach((track) => track.stop());
+      recorder?.stream.getTracks().forEach((track) => {
+        track.stop();
+      });
     };
   }, []);
 
@@ -60,11 +62,15 @@ export function useRecorder(): Recorder {
         if (event.data.size > 0) chunks.push(event.data);
       };
       recorder.onstop = () => {
-        recorder.stream.getTracks().forEach((track) => track.stop());
+        recorder.stream.getTracks().forEach((track) => {
+          track.stop();
+        });
         resolve(new Blob(chunks, { type: recorder.mimeType }));
       };
       recorder.onerror = (event) => {
-        recorder.stream.getTracks().forEach((track) => track.stop());
+        recorder.stream.getTracks().forEach((track) => {
+          track.stop();
+        });
         reject(new Error(`Recording failed: ${String((event as { error?: unknown }).error)}`));
       };
 

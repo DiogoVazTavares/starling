@@ -6,7 +6,7 @@
  * per-browser branches — `decodeAudioData` absorbs each browser's default codec.
  */
 
-import { TARGET_SAMPLE_RATE, encodeWav16BitPcm } from './wav-encoder';
+import { encodeWav16BitPcm, TARGET_SAMPLE_RATE } from './wav-encoder';
 
 export class EmptyRecordingError extends Error {}
 

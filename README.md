@@ -45,15 +45,16 @@ sending: decode the recording → render it through a mono 16 kHz `OfflineAudioC
 ## Scripts
 
 ```sh
-npm --prefix client run check       # format + lint + stylelint + typecheck
-npm --prefix client run format      # prettier --write
+npm --prefix client run check       # biome (format + lint) + typecheck
+npm --prefix client run fix         # biome check --write
 npm --prefix client run build       # typecheck + production build
 npm --prefix server run typecheck
 ```
 
-The client is formatted by Prettier and linted by oxlint + Stylelint; its styles are CSS Modules
-named with BEM. The conventions and the individual scripts are in
-[`client/README.md`](client/README.md). The server has no formatter or linter yet.
+The client is formatted and linted by [Biome](https://biomejs.dev) — one dependency covering
+TS, TSX, CSS and JSON. Its styles are CSS Modules named with BEM. The conventions and the
+individual scripts are in [`client/README.md`](client/README.md). The server has no formatter or
+linter yet.
 
 Set `GEMINI_MODEL` in `server/.env` to override the model — `gemini-3.5-flash` is the
 documented fallback ([ticket 008](wayfinder/tickets/008-model-choice-vs-alternatives.md)).

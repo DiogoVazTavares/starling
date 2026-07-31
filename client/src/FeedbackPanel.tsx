@@ -17,8 +17,11 @@ export function FeedbackPanel({ feedback }: { feedback: Feedback }) {
           <li key={dimension.name}>
             <div className={styles['feedback__dimension-head']}>
               <span className={styles['feedback__dimension-name']}>{dimension.name}</span>
+              {/* role=img so the aria-label is honoured — a bare span's generic role ignores it,
+                  which silently dropped this label for screen readers. */}
               <span
                 className={styles.feedback__score}
+                role="img"
                 aria-label={`${dimension.score} out of ${MAX_SCORE}`}
               >
                 {dimension.score}

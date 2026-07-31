@@ -4,7 +4,13 @@
  */
 
 export type Category =
-  'leadership' | 'conflict' | 'failure' | 'teamwork' | 'ambiguity' | 'impact' | 'prioritization';
+  | 'leadership'
+  | 'conflict'
+  | 'failure'
+  | 'teamwork'
+  | 'ambiguity'
+  | 'impact'
+  | 'prioritization';
 
 export interface Question {
   id: string;
