@@ -56,6 +56,15 @@ for implementation (this map decides, it does not build).
   evidence profile on one axis — *owned + specific + first-person evidence*. Plus a six-family
   diminishing-frame catalogue (each tagged with the tier it strips) and a five-family anti-signal
   list (flagged with quotes, not scored). The shared vocabulary 014 and 015 build on.
+- [015 — Seniority feedback report contract](tickets/015-seniority-report-contract.md)
+  — the report is a **separate batch call over the transcript** (`gemini-3.6-flash` + Interactions +
+  `response_format`, *not* the Live session) — text only, so vocal delivery isn't graded, but it's
+  re-runnable over stored transcripts. Contract: a prose `headline` (no ladder enum) + three tier
+  cards `{tier, level, note, quote}`; a **probe decode** (one entry per interviewer question,
+  `{measuring, whatYouDid, seniorMove, frame}`, senior-move as strategy not script per 002); a
+  **`framesFaced` scoreboard** ("reframed N of M", count not rate); **anti-signal flags**
+  `{type, quote, note}` computed by Gemini (no client heuristic, **no we/I ratio**); `overallSummary`
+  + 1–3 `fixIts`; **no** holistic gate flag. Flat enum-based JSON per 001. The contract 017 renders.
 - [014 — Interviewer persona & conversation protocol](tickets/014-interviewer-persona-protocol.md) —
   **one fixed persona** (a manager ~2 levels up), **warm-but-specific** pressure, never hostile.
   Governing rule: *the interview is realistic, the report is the teacher* — nothing scored, named, or
@@ -70,12 +79,10 @@ for implementation (this map decides, it does not build).
 
 <!-- the frontier: open + unblocked + unassigned -->
 
-- [015 — Seniority feedback report contract](tickets/015-seniority-report-contract.md)
-  — unassigned. **(frontier)**
 - [016 — Opening-scenario / interviewer-role seeding](tickets/016-scenario-role-seeding.md)
   — unassigned, now unblocked (014 closed). **(frontier)**
 - [017 — Two-tab navigation + live-conversation UX](tickets/017-two-tab-conversation-ux.md)
-  — blocked by 015.
+  — unassigned, now unblocked (014 + 015 closed). **(frontier)**
 
 ## Not yet specified
 
