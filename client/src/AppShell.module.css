@@ -1,0 +1,29 @@
+/**
+ * The two-tab shell that frames both modes (ticket 017 §1). BEM block: `shell`.
+ * The behavioral screen is unchanged — this frames it, it doesn't rewrite it.
+ */
+
+.shell {
+  min-height: 100vh;
+}
+
+.shell__tabs {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.shell__tab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted);
+  border-radius: 999px;
+}
+
+.shell__tab--active {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
