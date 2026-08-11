@@ -50,19 +50,23 @@ for implementation (this map decides, it does not build).
   automatically, ephemeral-token direct connection, ~$0.12/session. New streaming pipeline on a
   `-live` model, separate from the behavioral mode's batch stack.
   [(details)](research/multiturn-conversation.md)
+- [012 — Competency model for seniority/culture-fit screens](tickets/012-seniority-competency-model.md)
+  — a **coaching lens, not a hiring rubric**: a target-agnostic 3-tier scope-of-leadership ladder
+  (Lead Self / Lead Others / Lead the Business), scored as a per-tier `absent/emerging/demonstrated`
+  evidence profile on one axis — *owned + specific + first-person evidence*. Plus a six-family
+  diminishing-frame catalogue (each tagged with the tier it strips) and a five-family anti-signal
+  list (flagged with quotes, not scored). The shared vocabulary 014 and 015 build on.
 
 ## Open tickets
 
 <!-- the frontier: open + unblocked + unassigned -->
 
-- [012 — Competency model for seniority/culture-fit screens](tickets/012-seniority-competency-model.md)
-  — unassigned. **(frontier)**
 - [014 — Interviewer persona & conversation protocol](tickets/014-interviewer-persona-protocol.md)
-  — blocked by 012.
+  — unassigned. **(frontier)**
 - [015 — Seniority feedback report contract](tickets/015-seniority-report-contract.md)
-  — blocked by 012.
+  — unassigned. **(frontier)**
 - [016 — Opening-scenario / interviewer-role seeding](tickets/016-scenario-role-seeding.md)
-  — blocked by 012, 014.
+  — blocked by 014.
 - [017 — Two-tab navigation + live-conversation UX](tickets/017-two-tab-conversation-ux.md)
   — blocked by 014, 015.
 
