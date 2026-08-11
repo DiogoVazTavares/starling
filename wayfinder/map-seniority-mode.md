@@ -44,7 +44,12 @@ for implementation (this map decides, it does not build).
 
 <!-- one line per closed ticket: gist + link -->
 
-_None yet — charting session._
+- [013 — Multi-turn conversational architecture with Gemini](tickets/013-multiturn-conversation-architecture.md)
+  — use the Gemini **Live API** (stateful WebSocket): persona held server-side via
+  `systemInstruction`, interviewer replies as **native speech**, both sides transcribed
+  automatically, ephemeral-token direct connection, ~$0.12/session. New streaming pipeline on a
+  `-live` model, separate from the behavioral mode's batch stack.
+  [(details)](research/multiturn-conversation.md)
 
 ## Open tickets
 
@@ -52,16 +57,14 @@ _None yet — charting session._
 
 - [012 — Competency model for seniority/culture-fit screens](tickets/012-seniority-competency-model.md)
   — unassigned. **(frontier)**
-- [013 — Multi-turn conversational architecture with Gemini](tickets/013-multiturn-conversation-architecture.md)
-  — unassigned. **(frontier)**
 - [014 — Interviewer persona & conversation protocol](tickets/014-interviewer-persona-protocol.md)
-  — blocked by 012, 013.
+  — blocked by 012.
 - [015 — Seniority feedback report contract](tickets/015-seniority-report-contract.md)
   — blocked by 012.
 - [016 — Opening-scenario / interviewer-role seeding](tickets/016-scenario-role-seeding.md)
   — blocked by 012, 014.
 - [017 — Two-tab navigation + live-conversation UX](tickets/017-two-tab-conversation-ux.md)
-  — blocked by 013, 014, 015.
+  — blocked by 014, 015.
 
 ## Not yet specified
 
@@ -69,8 +72,6 @@ _None yet — charting session._
 
 - **Persisting & comparing seniority reports over time** — tracking whether the diminishing-frame /
   hedge habits improve across sessions. Ties into the original map's attempt-history fog.
-- **Whether the multi-turn audio pipeline should also upgrade the behavioral mode** — if 013 lands a
-  turn-by-turn transcription/streaming pipeline, the one-shot behavioral flow might reuse it.
 - **Optional personalization from the real STAR bank** — later, the mode could ingest Diogo's actual
   stories (from the `cv` repo) to coach evidence-selection. Deliberately deferred: inspiration only
   for now, to avoid overfitting.
