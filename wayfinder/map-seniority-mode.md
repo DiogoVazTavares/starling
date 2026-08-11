@@ -74,22 +74,31 @@ for implementation (this map decides, it does not build).
   floor, capped by 013's 15-min ceiling) so a fold-everything session still runs full-length. Pinned
   against a scripted session: [prototypes/014-scripted-session.md](prototypes/014-scripted-session.md).
   Unblocks 016.
+- [017 — Two-tab navigation + live-conversation UX](tickets/017-two-tab-conversation-ux.md) —
+  a thin **two-tab shell** (default **Behavioral**; warn-on-switch only during a live interview) framing
+  the unchanged behavioral screen. Live conversation is **Variant A: minimal, one turn at a time** —
+  current interviewer turn shown as text + replay, **no scrollback**, **audio-only while you answer**
+  (mic + level, no live transcript), **no progress signal/timer** (15-min cap enforced in-persona as a
+  natural close). Start screen is plain "Start interview" with a **reserved 016-agnostic seeding slot**.
+  Report screen renders 015 in order **headline → ladder → frames → decode → flags → fix-its**. Sessions
+  **persist silently** (transcript + report JSON, per 010's localStorage) but **no history UI** (deferred
+  to fog). Pinned against wireframes: [prototypes/017-ux-wireframes.md](prototypes/017-ux-wireframes.md).
 
 ## Open tickets
 
 <!-- the frontier: open + unblocked + unassigned -->
 
 - [016 — Opening-scenario / interviewer-role seeding](tickets/016-scenario-role-seeding.md)
-  — unassigned, now unblocked (014 closed). **(frontier)**
-- [017 — Two-tab navigation + live-conversation UX](tickets/017-two-tab-conversation-ux.md)
-  — unassigned, now unblocked (014 + 015 closed). **(frontier)**
+  — now unblocked (014 closed); being resolved in a parallel session. **(frontier)**
 
 ## Not yet specified
 
 <!-- in-scope fog; graduates into tickets as the frontier advances -->
 
 - **Persisting & comparing seniority reports over time** — tracking whether the diminishing-frame /
-  hedge habits improve across sessions. Ties into the original map's attempt-history fog.
+  hedge habits improve across sessions. Ties into the original map's attempt-history fog. 017 already
+  persists each session silently (transcript + report JSON), so this fog now also owns the **history /
+  reopen-past-reports UI**, deferred out of 017.
 - **Optional personalization from the real STAR bank** — later, the mode could ingest Diogo's actual
   stories (from the `cv` repo) to coach evidence-selection. Deliberately deferred: inspiration only
   for now, to avoid overfitting.
