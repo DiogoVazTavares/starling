@@ -83,13 +83,21 @@ for implementation (this map decides, it does not build).
   Report screen renders 015 in order **headline → ladder → frames → decode → flags → fix-its**. Sessions
   **persist silently** (transcript + report JSON, per 010's localStorage) but **no history UI** (deferred
   to fog). Pinned against wireframes: [prototypes/017-ux-wireframes.md](prototypes/017-ux-wireframes.md).
+- [016 — Opening-scenario / interviewer-role seeding](tickets/016-scenario-role-seeding.md) — a session
+  is seeded by **one semantic opening prompt and nothing else** (persona, protocol, tier-coverage stay
+  constant/adaptive per 014). A **five-seed bank** organized by story-kind — proud-of work / a
+  disagreement / something that went wrong / an ambiguous situation / a time you changed how something
+  was done — **authored against 012's failure catalogue** (each seed provokes specific frames +
+  anti-signals; all eleven classes covered). Zendesk link is **failure-mode, never content**; STAR bank
+  is an author-time reachability check only. **Random single-button start** — no menu, no difficulty;
+  deliberate drilling deferred to the adaptivity fog. Fills 017's reserved seeding slot.
 
 ## Open tickets
 
 <!-- the frontier: open + unblocked + unassigned -->
 
-- [016 — Opening-scenario / interviewer-role seeding](tickets/016-scenario-role-seeding.md)
-  — now unblocked (014 closed); being resolved in a parallel session. **(frontier)**
+- _(none — 016 was the last frontier ticket; every child of this map is closed. The way to build the
+  seniority mode is charted. Handoff to implementation.)_
 
 ## Not yet specified
 
