@@ -56,19 +56,26 @@ for implementation (this map decides, it does not build).
   evidence profile on one axis — *owned + specific + first-person evidence*. Plus a six-family
   diminishing-frame catalogue (each tagged with the tier it strips) and a five-family anti-signal
   list (flagged with quotes, not scored). The shared vocabulary 014 and 015 build on.
+- [014 — Interviewer persona & conversation protocol](tickets/014-interviewer-persona-protocol.md) —
+  **one fixed persona** (a manager ~2 levels up), **warm-but-specific** pressure, never hostile.
+  Governing rule: *the interview is realistic, the report is the teacher* — nothing scored, named, or
+  coached in-session. Frames land as **warm generous summaries** (register **never hardens**), aimed
+  by live evidence, offered ≤2× then dropped; **on a full fold the interviewer drops it and pivots**
+  (no in-session correction). Ending is **floor-bounded coverage** (keep finding new ground to a ~6-turn
+  floor, capped by 013's 15-min ceiling) so a fold-everything session still runs full-length. Pinned
+  against a scripted session: [prototypes/014-scripted-session.md](prototypes/014-scripted-session.md).
+  Unblocks 016.
 
 ## Open tickets
 
 <!-- the frontier: open + unblocked + unassigned -->
 
-- [014 — Interviewer persona & conversation protocol](tickets/014-interviewer-persona-protocol.md)
-  — unassigned. **(frontier)**
 - [015 — Seniority feedback report contract](tickets/015-seniority-report-contract.md)
   — unassigned. **(frontier)**
 - [016 — Opening-scenario / interviewer-role seeding](tickets/016-scenario-role-seeding.md)
-  — blocked by 014.
+  — unassigned, now unblocked (014 closed). **(frontier)**
 - [017 — Two-tab navigation + live-conversation UX](tickets/017-two-tab-conversation-ux.md)
-  — blocked by 014, 015.
+  — blocked by 015.
 
 ## Not yet specified
 
@@ -79,8 +86,6 @@ for implementation (this map decides, it does not build).
 - **Optional personalization from the real STAR bank** — later, the mode could ingest Diogo's actual
   stories (from the `cv` repo) to coach evidence-selection. Deliberately deferred: inspiration only
   for now, to avoid overfitting.
-- **Interviewer difficulty / adaptivity** — whether the interviewer scales pressure to the
-  candidate's level. Hangs on 014.
 
 ## Out of scope
 

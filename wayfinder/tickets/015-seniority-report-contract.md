@@ -2,7 +2,7 @@
 
 - Type: wayfinder:grilling
 - Status: open
-- Assignee: (unclaimed)
+- Assignee: Diogo Vaz
 - Blocked by: 012
 - Parent: wayfinder/map-seniority-mode.md
 
