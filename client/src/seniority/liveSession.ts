@@ -36,8 +36,11 @@ export interface LiveSessionCallbacks {
   onConnectedChange: (connected: boolean) => void;
   /** A held answer was cut short by a connection drop — the UI must leave its recording state. */
   onAnsweringInterrupted: () => void;
-  /** The interviewer closed the interview itself; the accumulated transcript is ready for the report. */
-  onEnded: (transcript: TranscriptTurn[]) => void;
+  /**
+   * The interviewer closed the interview itself; the accumulated transcript is ready for the report,
+   * tagged with the scenario `seedId` it ran (for silent persistence, ticket 017 §6).
+   */
+  onEnded: (transcript: TranscriptTurn[], seedId: string | undefined) => void;
   /** A fatal error the session couldn't recover from (e.g. reconnects exhausted). */
   onError: (message: string) => void;
 }
@@ -111,6 +114,11 @@ export class LiveSession {
     this.session.sendRealtimeInput({ activityEnd: {} });
   }
 
+  /** The scenario seed the session ran, once minted — tags the persisted session (ticket 017 §6). */
+  getSeedId(): string | undefined {
+    return this.seedId;
+  }
+
   /** Replay the interviewer's last turn (the ▶ replay affordance, ticket 017 §3). */
   replay(): void {
     if (this.lastTurnAudio && this.outputContext) {
@@ -143,7 +151,7 @@ export class LiveSession {
     );
     window.setTimeout(() => {
       this.teardown();
-      this.callbacks.onEnded(this.transcript);
+      this.callbacks.onEnded(this.transcript, this.seedId);
     }, drainMs);
   }
 

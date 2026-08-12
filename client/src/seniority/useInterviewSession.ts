@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { requestSeniorityReport } from './api';
 import { LiveSession } from './liveSession';
+import { saveSenioritySession } from './persistence';
 import type { SeniorityReport, TranscriptTurn } from './report';
 
 /**
@@ -32,17 +33,31 @@ export function useInterviewSession() {
 
   const sessionRef = useRef<LiveSession | null>(null);
 
-  const generateReport = useCallback(async (transcript: TranscriptTurn[]) => {
-    setPhase('generating');
-    try {
-      const result = await requestSeniorityReport(transcript);
-      setReport(result);
-      setPhase('report');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-      setPhase('error');
-    }
-  }, []);
+  // `seedId` comes back from the live session (server-side seeding, ticket 016), so it's passed in
+  // rather than read from state — the persisted record is tagged with the scenario that actually ran.
+  const generateReport = useCallback(
+    async (transcript: TranscriptTurn[], seedId: string | undefined) => {
+      setPhase('generating');
+      try {
+        const result = await requestSeniorityReport(transcript);
+        setReport(result);
+        setPhase('report');
+        // Silent persistence (ticket 017 §6): the finished session survives a reload. Non-fatal —
+        // the report is already rendering; a failed write is logged inside saveSenioritySession.
+        saveSenioritySession({
+          id: crypto.randomUUID(),
+          seedId: seedId ?? 'unknown',
+          timestamp: new Date().toISOString(),
+          transcript,
+          report: result,
+        });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err));
+        setPhase('error');
+      }
+    },
+    [],
+  );
 
   const start = useCallback(async () => {
     setError(null);
@@ -66,9 +81,9 @@ export function useInterviewSession() {
         setLevel(0);
       },
       // The interviewer closed the interview itself (ticket 014) — go straight to the report.
-      onEnded: (transcript) => {
+      onEnded: (transcript, seedId) => {
         sessionRef.current = null;
-        void generateReport(transcript);
+        void generateReport(transcript, seedId);
       },
       onError: (message) => {
         setError(message);
@@ -103,14 +118,16 @@ export function useInterviewSession() {
 
   /** The candidate ends the screen once the interviewer has wrapped up; hand the transcript to 015. */
   const endInterview = useCallback(() => {
-    const transcript = sessionRef.current?.end() ?? [];
+    const session = sessionRef.current;
+    const transcript = session?.end() ?? [];
+    const seedId = session?.getSeedId();
     sessionRef.current = null;
     if (transcript.length === 0) {
       setError('The interview ended before anything was said.');
       setPhase('error');
       return;
     }
-    void generateReport(transcript);
+    void generateReport(transcript, seedId);
   }, [generateReport]);
 
   const reset = useCallback(() => {
