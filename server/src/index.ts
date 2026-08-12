@@ -1,6 +1,7 @@
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { BadGeminiResponseError, MissingApiKeyError, requestFeedback } from './gemini.ts';
+import { generateSeniorityReport, type TranscriptTurn } from './seniority.ts';
 
 /**
  * The whole reason this server exists: it holds GEMINI_API_KEY so the browser never does
@@ -48,6 +49,37 @@ app.post('/api/feedback', async (c) => {
     }
     const detail = error instanceof Error ? error.message : String(error);
     return c.json({ error: `Gemini call failed: ${detail}` }, 502);
+  }
+});
+
+// --- Seniority mode (tickets 013 + 015) --------------------------------------------------------
+
+// TODO(013): mint a short-lived Gemini ephemeral token so the browser opens the Live WebSocket
+// directly (thin backend, no audio relay). Returns 501 until implemented.
+app.post('/api/live-token', (c) =>
+  c.json({ error: 'Live-token minting not implemented yet (ticket 013).' }, 501),
+);
+
+app.post('/api/seniority-report', async (c) => {
+  let body: unknown;
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ error: 'Request body must be JSON.' }, 400);
+  }
+
+  const { transcript } = (body ?? {}) as Record<string, unknown>;
+  if (!Array.isArray(transcript)) {
+    return c.json({ error: 'Missing "transcript" (an array of turns).' }, 400);
+  }
+
+  try {
+    const report = await generateSeniorityReport(transcript as TranscriptTurn[]);
+    return c.json(report);
+  } catch (error) {
+    console.error('[seniority-report] failed:', error);
+    const detail = error instanceof Error ? error.message : String(error);
+    return c.json({ error: `Report generation failed: ${detail}` }, 502);
   }
 });
 

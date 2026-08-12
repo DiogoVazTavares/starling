@@ -1,0 +1,79 @@
+/**
+ * Seniority mode — live conversation screen (ticket 017 §3, Variant A: minimal, one turn at a time).
+ * BEM block: `talk`. No scrollback, no progress meter — only the current interviewer turn plus the
+ * answer control. Audio-only while answering (a mic indicator, no live transcript of your words).
+ */
+
+.talk {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 6rem;
+  display: grid;
+  justify-items: center;
+  gap: 2rem;
+  text-align: center;
+}
+
+.talk__speaker {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.talk__prompt {
+  font-size: 1.4rem;
+  line-height: 1.4;
+}
+
+.talk__replay {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.85rem;
+  padding: 0.4rem 1rem;
+}
+
+.talk__divider {
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+.talk__answer {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.talk__mic {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--danger);
+  animation: talk-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes talk-pulse {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .talk__mic {
+    animation: none;
+  }
+}
+
+.talk__hint {
+  color: var(--muted);
+  margin: 0;
+}
+
+.talk__error {
+  padding: 0.9rem 1.1rem;
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+  border-radius: 0.6rem;
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
