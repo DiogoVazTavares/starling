@@ -1,11 +1,11 @@
 # AGENTS.md
 
-## Project
+# Starling
 
 A voice-based behavioral interview trainer: you record a spoken answer to a behavioral
 interview question and get structured coaching feedback back, retrying until you're happy.
-`client/` is a Vite + React + TS app (mic capture, practice screen), `server/` is a Hono + TS
-proxy to the Gemini API, and `wayfinder/` holds the spec, tickets, and research. See the
+The name nods to the starling — a bird that masters its voice through repeated imitation and
+practice, just as you rehearse and refine your spoken answers here. See the
 [README](./README.md) for setup and details.
 
 ## Git workflow
