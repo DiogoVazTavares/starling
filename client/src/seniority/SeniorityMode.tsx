@@ -9,7 +9,12 @@ import { useInterviewSession } from './useInterviewSession';
  */
 export function SeniorityMode({ onLiveChange }: { onLiveChange?: (live: boolean) => void }) {
   const session = useInterviewSession();
-  const isLive = session.phase === 'connecting' || session.phase === 'interviewing';
+  // Warn before a tab switch for every phase that still lives on the conversation screen (017 §1):
+  // the live turns AND `generating`, where the report call is in flight and leaving would lose it.
+  const isLive =
+    session.phase === 'connecting' ||
+    session.phase === 'interviewing' ||
+    session.phase === 'generating';
   onLiveChange?.(isLive);
 
   if (session.phase === 'idle') {

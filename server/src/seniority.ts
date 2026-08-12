@@ -9,12 +9,25 @@ export interface TranscriptTurn {
 }
 
 // Mirror of client/src/seniority/report.ts — the flat shape pinned as Gemini's response_format.
+// The unions are kept in step with the client's on purpose (tickets 012/015); a stray literal must
+// fail to type-check here, not just on the client. Server and client stay separate packages (same
+// split as api.ts / rubric.ts), so the shape is duplicated rather than imported across the boundary.
+type Tier = 'Lead Self' | 'Lead Others' | 'Lead the Business';
+type TierLevel = 'absent' | 'emerging' | 'demonstrated';
+type FrameFamily = 'Order-taker' | 'Bystander' | 'Small-scope' | 'Luck' | 'Too-junior' | 'False-modesty';
+type AntiSignal = 'we-not-i' | 'hedging' | 'unquantified' | 'passivity' | 'frame-acceptance';
+
 export interface SeniorityReport {
   headline: string;
-  ladder: { tier: string; level: string; note: string; quote: string }[];
-  framesFaced: { frame: string; reframed: boolean }[];
-  probeDecode: { measuring: string; whatYouDid: string; seniorMove: string; frame: string }[];
-  flags: { type: string; quote: string; note: string }[];
+  ladder: { tier: Tier; level: TierLevel; note: string; quote: string }[];
+  framesFaced: { frame: FrameFamily; reframed: boolean }[];
+  probeDecode: {
+    measuring: string;
+    whatYouDid: string;
+    seniorMove: string;
+    frame: FrameFamily | 'none';
+  }[];
+  flags: { type: AntiSignal; quote: string; note: string }[];
   overallSummary: string;
   fixIts: string[];
 }

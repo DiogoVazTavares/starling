@@ -9,8 +9,8 @@ export function StartScreen({ onStart }: { onStart: () => void }) {
     <section className={styles.start}>
       <h1>Seniority screen</h1>
       <p className={styles.start__lede}>
-        A ~25-minute culture-fit screen with a manager two levels up. They'll ask, listen, and push.
-        Afterwards you get a coaching report — nothing is scored while you talk.
+        A culture-fit screen with a manager two levels up. They'll ask, listen, and push. Afterwards
+        you get a coaching report — nothing is scored while you talk.
       </p>
 
       {/* TODO(016): reserved seeding slot. If ticket 016 adds user-facing seeding controls (it
