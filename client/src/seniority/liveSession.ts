@@ -174,7 +174,7 @@ export class LiveSession {
         },
         onmessage: (message) => this.handleMessage(message),
         onerror: (event) => this.handleDrop(event.message || 'Live connection error.'),
-        onclose: () => this.handleDrop('Live connection closed.'),
+        onclose: (event) => this.handleDrop(event.reason || 'Live connection closed.'),
       },
     });
 
