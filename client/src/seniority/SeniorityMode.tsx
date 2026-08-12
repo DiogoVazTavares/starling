@@ -30,7 +30,12 @@ export function SeniorityMode({ onLiveChange }: { onLiveChange?: (live: boolean)
       phase={session.phase}
       prompt={session.currentPrompt}
       error={session.error}
-      onAnswer={() => session.submitAnswer()}
+      answering={session.answering}
+      level={session.level}
+      onBeginAnswer={session.beginAnswer}
+      onEndAnswer={session.endAnswer}
+      onReplay={session.replay}
+      onEnd={session.endInterview}
       onRetry={session.reset}
     />
   );

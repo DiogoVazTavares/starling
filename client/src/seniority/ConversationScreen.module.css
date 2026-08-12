@@ -44,6 +44,32 @@
 .talk__answer {
   background: var(--accent);
   color: var(--bg);
+  touch-action: none;
+  user-select: none;
+}
+
+.talk__answer--live {
+  background: var(--danger);
+}
+
+.talk__answering {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+}
+
+.talk__meter {
+  width: 12rem;
+  height: 0.5rem;
+}
+
+.talk__end {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-decoration: underline;
+  padding: 0;
 }
 
 .talk__mic {

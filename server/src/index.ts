@@ -1,6 +1,7 @@
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { BadGeminiResponseError, MissingApiKeyError, requestFeedback } from './gemini.ts';
+import { mintLiveToken } from './interviewer.ts';
 import { BadSeniorityReportError, generateSeniorityReport, type TranscriptTurn } from './seniority.ts';
 
 /**
@@ -54,11 +55,28 @@ app.post('/api/feedback', async (c) => {
 
 // --- Seniority mode (tickets 013 + 015) --------------------------------------------------------
 
-// TODO(013): mint a short-lived Gemini ephemeral token so the browser opens the Live WebSocket
-// directly (thin backend, no audio relay). Returns 501 until implemented.
-app.post('/api/live-token', (c) =>
-  c.json({ error: 'Live-token minting not implemented yet (ticket 013).' }, 501),
-);
+/**
+ * Mint a short-lived Gemini ephemeral token with the whole interviewer config locked in, so the
+ * browser opens the Live WebSocket directly — the backend stays thin and never relays audio
+ * (ticket 013). An optional `seedId` in the body resumes the same scenario on reconnection.
+ */
+app.post('/api/live-token', async (c) => {
+  // A body is optional (a fresh session sends none); tolerate a missing or non-JSON body.
+  const body = (await c.req.json().catch(() => ({}))) as Record<string, unknown>;
+  const seedId = typeof body.seedId === 'string' ? body.seedId : undefined;
+
+  try {
+    return c.json(await mintLiveToken(seedId));
+  } catch (error) {
+    console.error('[live-token] failed:', error);
+
+    if (error instanceof MissingApiKeyError) {
+      return c.json({ error: error.message }, 500);
+    }
+    const detail = error instanceof Error ? error.message : String(error);
+    return c.json({ error: `Could not mint a live token: ${detail}` }, 502);
+  }
+});
 
 app.post('/api/seniority-report', async (c) => {
   let body: unknown;
