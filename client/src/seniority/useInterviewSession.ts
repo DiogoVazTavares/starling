@@ -1,5 +1,6 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { requestSeniorityReport } from './api';
+import { saveSenioritySession } from './persistence';
 import type { SeniorityReport, TranscriptTurn } from './report';
 import { pickRandomSeed, type Seed } from './seeds';
 
@@ -46,6 +47,15 @@ export function useInterviewSession() {
   const transcript = useRef<TranscriptTurn[]>([]);
   const turnIndex = useRef(0);
 
+  // Mirror `seed` into a ref so `generateReport` (stable, no deps) can tag the persisted session
+  // with the seed it actually ran, without re-creating the callback on every seed change. Synced
+  // from state via effect (the same ref-mirror pattern as usePracticeSession's reviewUrlRef) so it
+  // can never drift from `seed`, whoever sets it.
+  const seedRef = useRef<Seed | null>(null);
+  useEffect(() => {
+    seedRef.current = seed;
+  }, [seed]);
+
   const generateReport = useCallback(async () => {
     setPhase('generating');
     try {
@@ -54,6 +64,15 @@ export function useInterviewSession() {
       const result = await requestSeniorityReport(transcript.current);
       setReport(result);
       setPhase('report');
+      // Silent persistence (ticket 017 §6): the finished session survives a reload. Non-fatal —
+      // the report is already rendering; a failed write is logged inside saveSenioritySession.
+      saveSenioritySession({
+        id: crypto.randomUUID(),
+        seedId: seedRef.current?.id ?? 'unknown',
+        timestamp: new Date().toISOString(),
+        transcript: transcript.current,
+        report: result,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
       setPhase('error');
