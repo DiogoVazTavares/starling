@@ -1,7 +1,7 @@
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { BadGeminiResponseError, MissingApiKeyError, requestFeedback } from './gemini.ts';
-import { generateSeniorityReport, type TranscriptTurn } from './seniority.ts';
+import { BadSeniorityReportError, generateSeniorityReport, type TranscriptTurn } from './seniority.ts';
 
 /**
  * The whole reason this server exists: it holds GEMINI_API_KEY so the browser never does
@@ -69,8 +69,8 @@ app.post('/api/seniority-report', async (c) => {
   }
 
   const { transcript } = (body ?? {}) as Record<string, unknown>;
-  if (!Array.isArray(transcript)) {
-    return c.json({ error: 'Missing "transcript" (an array of turns).' }, 400);
+  if (!Array.isArray(transcript) || transcript.length === 0) {
+    return c.json({ error: 'Missing "transcript" (a non-empty array of turns).' }, 400);
   }
 
   try {
@@ -78,6 +78,13 @@ app.post('/api/seniority-report', async (c) => {
     return c.json(report);
   } catch (error) {
     console.error('[seniority-report] failed:', error);
+
+    if (error instanceof MissingApiKeyError) {
+      return c.json({ error: error.message }, 500);
+    }
+    if (error instanceof BadSeniorityReportError) {
+      return c.json({ error: `Gemini sent back something unusable: ${error.message}` }, 502);
+    }
     const detail = error instanceof Error ? error.message : String(error);
     return c.json({ error: `Report generation failed: ${detail}` }, 502);
   }

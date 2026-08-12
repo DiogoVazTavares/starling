@@ -12,7 +12,7 @@ import {
  * JSON-schema-out and text-rate audio pricing. `gemini-3.5-flash` is the documented
  * fallback, hence the override.
  */
-const MODEL = process.env.GEMINI_MODEL ?? 'gemini-3.6-flash';
+export const MODEL = process.env.GEMINI_MODEL ?? 'gemini-3.6-flash';
 
 /** Thrown when the server is misconfigured, as opposed to the request being bad. */
 export class MissingApiKeyError extends Error {}
@@ -22,7 +22,8 @@ export class BadGeminiResponseError extends Error {}
 
 let client: GoogleGenAI | undefined;
 
-function getClient(): GoogleGenAI {
+/** Exported so other modes (e.g. seniority.ts) reuse the same proven client + API-key handling. */
+export function getClient(): GoogleGenAI {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new MissingApiKeyError(
