@@ -7,7 +7,6 @@ import { getClient, MODEL } from './gemini.ts';
 import {
   ANTI_SIGNALS,
   FRAME_FAMILIES,
-  PROBE_FRAMES,
   SYSTEM_INSTRUCTION,
   TIER_LEVELS,
   TIERS,
@@ -114,7 +113,7 @@ function parseSeniorityReport(text: string): SeniorityReport {
     if (typeof measuring !== 'string' || typeof whatYouDid !== 'string' || typeof seniorMove !== 'string') {
       throw new BadSeniorityReportError('A probe-decode entry is missing measuring/whatYouDid/seniorMove.');
     }
-    if (!PROBE_FRAMES.includes(frame as never)) {
+    if (!FRAME_FAMILIES.includes(frame as never)) {
       throw new BadSeniorityReportError(`Probe-decode entry has an unknown frame: ${String(frame)}`);
     }
   }

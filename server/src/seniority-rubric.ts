@@ -17,6 +17,9 @@ export interface TranscriptTurn {
 
 export const TIERS = ['Lead Self', 'Lead Others', 'Lead the Business'] as const;
 export const TIER_LEVELS = ['absent', 'emerging', 'demonstrated'] as const;
+// 'none' is a member here (unlike the client's FrameFamily, which keeps it as a separate union
+// arm on ProbeDecodeEntry.frame) because only probeDecode uses it — framesFaced never does, so one
+// shared enum is simpler than a second PROBE_FRAMES type for a single extra sentinel value.
 export const FRAME_FAMILIES = [
   'Order-taker',
   'Bystander',
@@ -24,14 +27,13 @@ export const FRAME_FAMILIES = [
   'Luck',
   'Too-junior',
   'False-modesty',
+  'none',
 ] as const;
-export const PROBE_FRAMES = [...FRAME_FAMILIES, 'none'] as const;
 export const ANTI_SIGNALS = ['we-not-i', 'hedging', 'unquantified', 'passivity', 'frame-acceptance'] as const;
 
 export type Tier = (typeof TIERS)[number];
 export type TierLevel = (typeof TIER_LEVELS)[number];
 export type FrameFamily = (typeof FRAME_FAMILIES)[number];
-export type ProbeFrame = (typeof PROBE_FRAMES)[number];
 export type AntiSignal = (typeof ANTI_SIGNALS)[number];
 
 export interface SeniorityReport {
@@ -42,7 +44,7 @@ export interface SeniorityReport {
     measuring: string;
     whatYouDid: string;
     seniorMove: string;
-    frame: ProbeFrame;
+    frame: FrameFamily;
   }[];
   flags: { type: AntiSignal; quote: string; note: string }[];
   overallSummary: string;
@@ -98,7 +100,7 @@ export const seniorityReportSchema = {
             type: 'string',
             description: 'The stronger strategy they missed — a strategy, never a scripted line.',
           },
-          frame: { type: 'string', enum: [...PROBE_FRAMES] },
+          frame: { type: 'string', enum: [...FRAME_FAMILIES] },
         },
         required: ['measuring', 'whatYouDid', 'seniorMove', 'frame'],
       },
