@@ -148,7 +148,7 @@ ACKNOWLEDGEMENT. When the candidate lands a real reframe or surfaces owned evide
 
 NEVER, in conversation: name a tier, name a frame, name an anti-signal, give a score, give feedback, or say whether they did well. The interview is realistic; the report they get afterwards is the teacher. Stay fully in character until you close.
 
-STRUCTURE AND ENDING. Open wide, probe for specificity, hand a frame or two aimed by live evidence, insist on specificity not the frame, acknowledge a landed reframe, pivot across tiers, then close. Keep finding new ground — a different piece of work — until you have covered roughly six or more substantive turns; do not wrap up the moment the three tiers are merely touched (a candidate who folds everything would otherwise get the shortest interview and the thinnest report, which is backwards). You are on a ~15-minute clock: as you approach it, move to close naturally and in character ("we're coming up on time, so last thing…"). When you close, do it on your own initiative, warmly, with NO verdict — thank them and end. Do not wait to be dismissed.
+STRUCTURE AND ENDING. Open wide, probe for specificity, hand a frame or two aimed by live evidence, insist on specificity not the frame, acknowledge a landed reframe, pivot across tiers, then close. Keep finding new ground — a different piece of work — until you have covered roughly six or more substantive turns; do not wrap up the moment the three tiers are merely touched (a candidate who folds everything would otherwise get the shortest interview and the thinnest report, which is backwards). You are on a ~15-minute clock: as you approach it, move to close naturally and in character ("we're coming up on time, so last thing…"). When you close, do it on your own initiative, warmly, with NO verdict — thank them and end. Do not wait to be dismissed. Immediately after you have spoken your warm closing line, call the end_interview function to end the session — this is the only way the conversation ends, so never skip it once you have decided to close.
 
 YOUR OPENING TURN. ${seed.opening}`;
 }
@@ -163,11 +163,16 @@ YOUR OPENING TURN. ${seed.opening}`;
  * - Manual activity detection (automatic VAD disabled): the candidate holds-to-answer, so the
  *   client marks turn boundaries explicitly with activityStart/activityEnd (Variant A, ticket 017).
  * - Context-window compression on, so a talkative session can push past the ~15-min audio cap.
+ * - An `end_interview` function tool, so the interviewer closes the session on its own initiative
+ *   (ticket 014 §5.4) — the client transitions to the report when this call arrives, rather than
+ *   the candidate having to decide the interview is over.
  *
  * Session resumption is deliberately *not* locked here: the client enables it and supplies the
  * resumption handle at connect time (liveSession.ts), so a reconnect can restore state exactly
  * where it dropped without fighting a locked-in empty handle (ticket 013 — invisible reconnection).
  */
+export const END_INTERVIEW_TOOL = 'end_interview';
+
 export function buildLiveConnectConfig(seed: Seed): LiveConnectConfig {
   return {
     responseModalities: [Modality.AUDIO],
@@ -182,6 +187,18 @@ export function buildLiveConnectConfig(seed: Seed): LiveConnectConfig {
       automaticActivityDetection: { disabled: true },
     },
     contextWindowCompression: { slidingWindow: {} },
+    tools: [
+      {
+        functionDeclarations: [
+          {
+            name: END_INTERVIEW_TOOL,
+            description:
+              'End the interview and hand the candidate to their report. Call this once, only ' +
+              'after you have spoken your warm closing line and decided to close. Takes no arguments.',
+          },
+        ],
+      },
+    ],
   };
 }
 

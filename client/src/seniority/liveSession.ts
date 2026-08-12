@@ -20,6 +20,12 @@ const OUTPUT_SAMPLE_RATE = 24000;
 const CAPTURE_BUFFER_SIZE = 4096;
 /** How many times to silently re-open a dropped connection before surfacing an error. */
 const MAX_RECONNECTS = 3;
+/**
+ * The function the interviewer calls to close the session on its own (ticket 014 §5.4). Must match
+ * `END_INTERVIEW_TOOL` in the server's interviewer.ts — server and client are separate packages, so
+ * like the report contract it's duplicated across the boundary rather than imported.
+ */
+const END_INTERVIEW_TOOL = 'end_interview';
 
 export interface LiveSessionCallbacks {
   /** The interviewer's just-finished turn, as text, to pin on screen (Variant A, ticket 017). */
@@ -28,6 +34,10 @@ export interface LiveSessionCallbacks {
   onLevel: (level: number) => void;
   /** True once connected and the interviewer is engaged; false while (re)connecting. */
   onConnectedChange: (connected: boolean) => void;
+  /** A held answer was cut short by a connection drop — the UI must leave its recording state. */
+  onAnsweringInterrupted: () => void;
+  /** The interviewer closed the interview itself; the accumulated transcript is ready for the report. */
+  onEnded: (transcript: TranscriptTurn[]) => void;
   /** A fatal error the session couldn't recover from (e.g. reconnects exhausted). */
   onError: (message: string) => void;
 }
@@ -61,6 +71,7 @@ export class LiveSession {
   private seedId?: string;
   private resumptionHandle?: string;
   private reconnects = 0;
+  private reconnecting = false;
   private closed = false;
 
   constructor(callbacks: LiveSessionCallbacks) {
@@ -108,14 +119,32 @@ export class LiveSession {
   }
 
   /**
-   * End the interview: close the socket, release the mic, and hand back the full transcript for the
-   * report call (ticket 015). Idempotent — safe to call once the interviewer has wrapped up.
+   * End the interview from the candidate's side (the "end early" escape hatch, or a reset): close the
+   * socket, release the mic, and hand back the full transcript for the report call (ticket 015).
+   * Idempotent — safe to call more than once, or after the interviewer already closed.
    */
   end(): TranscriptTurn[] {
     this.closed = true;
     this.flushTurns();
     this.teardown();
     return this.transcript;
+  }
+
+  /** The interviewer called end_interview: finalize the transcript and notify the hook (ticket 014). */
+  private endFromInterviewer(): void {
+    if (this.closed) return;
+    this.closed = true;
+    this.flushTurns();
+    // The tool call lands right after the closing line's audio, so let that audio finish before we
+    // cut it and hand off — otherwise the interviewer's goodbye is chopped off mid-sentence.
+    const drainMs = Math.max(
+      0,
+      (this.playheadTime - (this.outputContext?.currentTime ?? 0)) * 1000,
+    );
+    window.setTimeout(() => {
+      this.teardown();
+      this.callbacks.onEnded(this.transcript);
+    }, drainMs);
   }
 
   // --- Connection ------------------------------------------------------------------------------
@@ -140,6 +169,7 @@ export class LiveSession {
       callbacks: {
         onopen: () => {
           this.reconnects = 0;
+          this.reconnecting = false;
           this.callbacks.onConnectedChange(true);
         },
         onmessage: (message) => this.handleMessage(message),
@@ -157,14 +187,20 @@ export class LiveSession {
     }
   }
 
-  /**
-   * A connection dropped (error or close). If it was intentional, ignore it; otherwise reconnect
-   * silently via the resumption handle until the retry budget is spent, then surface the failure.
-   */
+  /** The socket errored or closed unexpectedly — reconnect unless a reconnect is already underway. */
   private handleDrop(reason: string): void {
-    if (this.closed) return;
-    this.session = undefined;
-    this.answering = false;
+    if (this.closed || this.reconnecting) return;
+    this.reconnect(reason);
+  }
+
+  /**
+   * Reconnect and restore the conversation from the resumption handle (ticket 013 — invisible
+   * reconnection). Driven both reactively (a drop) and proactively: a `goAway` warns before the
+   * server closes the socket, so we reconnect on the warning rather than waiting for the gap.
+   * Gives up — surfacing an error — once the retry budget is spent or there's no handle to resume.
+   */
+  private reconnect(reason: string): void {
+    if (this.closed || this.reconnecting) return;
 
     if (!this.resumptionHandle || this.reconnects >= MAX_RECONNECTS) {
       this.closed = true;
@@ -173,8 +209,19 @@ export class LiveSession {
       return;
     }
 
+    this.reconnecting = true;
     this.reconnects += 1;
+    // A held answer can't survive the reconnect, so drop it and tell the UI to leave its recording
+    // state — otherwise it stays stuck on "release when done" over a dead socket.
+    if (this.answering) {
+      this.answering = false;
+      this.callbacks.onAnsweringInterrupted();
+    }
     this.callbacks.onConnectedChange(false);
+    // Close the old socket now; its late onclose is ignored because `reconnecting` is set.
+    this.session?.close();
+    this.session = undefined;
+
     this.connect().catch((error: unknown) => {
       this.closed = true;
       this.teardown();
@@ -186,9 +233,24 @@ export class LiveSession {
   // --- Incoming messages -----------------------------------------------------------------------
 
   private handleMessage(message: LiveServerMessage): void {
+    // Once we've closed (interviewer wrapped up, draining its goodbye), ignore trailing messages.
+    if (this.closed) return;
+
     // A newer handle supersedes the last; keep the freshest so a reconnect resumes as late as possible.
     const handle = message.sessionResumptionUpdate?.newHandle;
     if (handle) this.resumptionHandle = handle;
+
+    // The server warns before it drops the socket; reconnect on the warning to hide the gap.
+    if (message.goAway) {
+      this.reconnect('the server signalled the connection will close');
+      return;
+    }
+
+    // The interviewer decided to close (ticket 014 §5.4) — end the session and hand off the report.
+    if (message.toolCall?.functionCalls?.some((call) => call.name === END_INTERVIEW_TOOL)) {
+      this.endFromInterviewer();
+      return;
+    }
 
     const content = message.serverContent;
     if (!content) return;

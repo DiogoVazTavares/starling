@@ -6,12 +6,13 @@
  * samples, never here; that keeps this module free of the browser and unit-testable (pcm.test.ts).
  *
  * The one-shot behavioral mode ships a finished WAV over HTTP (wav.ts); this streams headerless PCM
- * over a socket, so the two audio paths deliberately share no code.
+ * over a socket. The two pipelines share only the byte<->base64 step (base64.ts); the int16 sample
+ * math below is this path's own.
  */
 
-// Spreading megabytes of samples into String.fromCharCode(...) blows the call stack, so both
-// directions walk the bytes in bounded chunks.
-const CHUNK_SIZE = 0x8000;
+// Explicit .ts extension: this module is also compiled under the Node (nodenext) test project, which
+// requires it. The rest of the client uses bundler-mode extensionless imports.
+import { base64ToBytes, bytesToBase64 } from './base64.ts';
 
 /** Float32 samples in [-1, 1] -> base64 of 16-bit little-endian PCM. Out-of-range samples clamp. */
 export function encodePcm16Base64(samples: Float32Array): string {
@@ -23,22 +24,12 @@ export function encodePcm16Base64(samples: Float32Array): string {
     // Asymmetric scale (32767 up, 32768 down) so both extremes land in range.
     view.setInt16(i * 2, clamped < 0 ? clamped * 0x8000 : clamped * 0x7fff, true);
   }
-
-  let binary = '';
-  for (let i = 0; i < pcm.length; i += CHUNK_SIZE) {
-    binary += String.fromCharCode(...pcm.subarray(i, i + CHUNK_SIZE));
-  }
-  return btoa(binary);
+  return bytesToBase64(pcm);
 }
 
 /** base64 of 16-bit little-endian PCM -> Float32 samples in [-1, 1]. Inverse of the encoder. */
 export function decodePcm16Base64(base64: string): Float32Array {
-  const binary = atob(base64);
-  const pcm = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    pcm[i] = binary.charCodeAt(i);
-  }
-
+  const pcm = base64ToBytes(base64);
   const view = new DataView(pcm.buffer);
   const samples = new Float32Array(Math.floor(pcm.length / 2));
   for (let i = 0; i < samples.length; i++) {

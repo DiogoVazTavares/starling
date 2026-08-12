@@ -60,6 +60,16 @@ export function useInterviewSession() {
       onConnectedChange: (connected) => {
         if (connected) setPhase('interviewing');
       },
+      // A reconnect cut a held answer short; leave the recording UI so it isn't stuck (ticket 013).
+      onAnsweringInterrupted: () => {
+        setAnswering(false);
+        setLevel(0);
+      },
+      // The interviewer closed the interview itself (ticket 014) — go straight to the report.
+      onEnded: (transcript) => {
+        sessionRef.current = null;
+        void generateReport(transcript);
+      },
       onError: (message) => {
         setError(message);
         setPhase('error');
@@ -74,7 +84,7 @@ export function useInterviewSession() {
       setError(err instanceof Error ? err.message : String(err));
       setPhase('error');
     }
-  }, []);
+  }, [generateReport]);
 
   const beginAnswer = useCallback(() => {
     sessionRef.current?.beginAnswer();

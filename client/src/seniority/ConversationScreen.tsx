@@ -114,8 +114,9 @@ export function ConversationScreen({
         {answering ? 'Release when done' : 'Hold to answer'}
       </button>
 
+      {/* The interviewer normally closes on its own (ticket 014); this is just an early-exit hatch. */}
       <button type="button" className={styles.talk__end} onClick={onEnd}>
-        End &amp; get my report
+        End interview early
       </button>
     </section>
   );

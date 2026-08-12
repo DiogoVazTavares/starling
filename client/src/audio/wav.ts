@@ -6,6 +6,7 @@
  * per-browser branches — `decodeAudioData` absorbs each browser's default codec.
  */
 
+import { bytesToBase64 } from './base64';
 import { encodeWav16BitPcm, TARGET_SAMPLE_RATE } from './wav-encoder';
 
 export class EmptyRecordingError extends Error {}
@@ -13,7 +14,7 @@ export class EmptyRecordingError extends Error {}
 export async function toMono16kWavBase64(recorded: Blob): Promise<string> {
   const decoded = await decode(recorded);
   const mono16k = await resampleToMono16k(decoded);
-  return toBase64(encodeWav16BitPcm(mono16k.getChannelData(0)));
+  return bytesToBase64(encodeWav16BitPcm(mono16k.getChannelData(0)));
 }
 
 async function decode(recorded: Blob): Promise<AudioBuffer> {
@@ -44,14 +45,4 @@ async function resampleToMono16k(decoded: AudioBuffer): Promise<AudioBuffer> {
   source.start();
 
   return offline.startRendering();
-}
-
-function toBase64(bytes: Uint8Array): string {
-  // Chunked, because spreading megabytes of samples into fromCharCode blows the call stack.
-  const CHUNK_SIZE = 0x8000;
-  let binary = '';
-  for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK_SIZE));
-  }
-  return btoa(binary);
 }
