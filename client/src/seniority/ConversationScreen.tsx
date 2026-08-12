@@ -76,33 +76,44 @@ export function ConversationScreen({
 
       <hr className={styles.talk__divider} />
 
-      {answering ? (
-        <div className={styles.talk__answering}>
-          <span className={styles.talk__mic} aria-hidden />
-          <meter
-            className={styles.talk__meter}
-            aria-label="Microphone level"
-            min={0}
-            max={1}
-            value={level}
-          />
-          <p className={styles.talk__hint} aria-live="polite">
-            Listening… release when you're done.
-          </p>
-        </div>
-      ) : (
-        <p className={styles.talk__hint}>Take your time, then hold the button to answer.</p>
-      )}
+      {/* Fixed-height so switching to the answering state doesn't shove the button below it. */}
+      <div className={styles['talk__answer-area']}>
+        {answering ? (
+          <div className={styles.talk__answering}>
+            <span className={styles.talk__mic} aria-hidden />
+            <meter
+              className={styles.talk__meter}
+              aria-label="Microphone level"
+              min={0}
+              max={1}
+              value={level}
+            />
+            <p className={styles.talk__hint} aria-live="polite">
+              Listening… release when you're done.
+            </p>
+          </div>
+        ) : (
+          <p className={styles.talk__hint}>Take your time, then hold the button to answer.</p>
+        )}
+      </div>
 
-      {/* Hold-to-record: press and hold (pointer or keyboard) to stream your answer up. */}
+      {/*
+        Hold-to-record: press and hold (pointer or keyboard) to stream your answer up. We capture the
+        pointer on press so pointerup always lands back here — starting to answer inserts the meter
+        block above and shifts this button, which would otherwise fire pointerleave the instant you
+        press and end the turn immediately (an empty answer + a UI flicker). Capture also lets you
+        drift off the button while holding, so we don't end on pointerleave at all.
+      */}
       <button
         type="button"
         className={
           answering ? `${styles.talk__answer} ${styles['talk__answer--live']}` : styles.talk__answer
         }
-        onPointerDown={onBeginAnswer}
+        onPointerDown={(event) => {
+          event.currentTarget.setPointerCapture(event.pointerId);
+          onBeginAnswer();
+        }}
         onPointerUp={onEndAnswer}
-        onPointerLeave={() => answering && onEndAnswer()}
         onPointerCancel={onEndAnswer}
         onKeyDown={(event) => {
           if ((event.key === ' ' || event.key === 'Enter') && !event.repeat) onBeginAnswer();
