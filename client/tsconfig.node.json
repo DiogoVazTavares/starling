@@ -20,5 +20,6 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts"]
+  // vite.config.ts plus the Node-run unit tests (node:test), which need node globals + types.
+  "include": ["vite.config.ts", "src/**/*.test.ts"]
 }

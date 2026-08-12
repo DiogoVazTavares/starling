@@ -11,9 +11,11 @@
     "lint": "biome lint .",
     "fix": "biome check --write .",
     "check": "biome check . && npm run typecheck",
+    "test": "node --test",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google/genai": "2.14.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   },
