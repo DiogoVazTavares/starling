@@ -1,4 +1,14 @@
-# Git workflow
+# AGENTS.md
+
+## Project
+
+A voice-based behavioral interview trainer: you record a spoken answer to a behavioral
+interview question and get structured coaching feedback back, retrying until you're happy.
+`client/` is a Vite + React + TS app (mic capture, practice screen), `server/` is a Hono + TS
+proxy to the Gemini API, and `wayfinder/` holds the spec, tickets, and research. See the
+[README](./README.md) for setup and details.
+
+## Git workflow
 
 Applies to humans and AI agents.
 
