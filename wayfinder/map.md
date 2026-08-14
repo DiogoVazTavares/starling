@@ -101,8 +101,8 @@ No issue tracker is configured, so this map uses the local-markdown fallback:
 
 <!-- the frontier: open + unblocked + unassigned -->
 
-None right now — both 010 and 005 are closed. The next session should graduate a patch of
-**Not yet specified** below into fresh tickets.
+None on this map. Product consolidation is charted on
+[`map-unified-interview.md`](map-unified-interview.md) (2026-08-14).
 
 ## Not yet specified
 

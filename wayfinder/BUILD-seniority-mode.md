@@ -1,5 +1,8 @@
 # Build scaffold — seniority / culture-fit interview mode
 
+> **Superseded (2026-08-14).** Follow [`BUILD-unified-interview.md`](BUILD-unified-interview.md)
+> instead. This doc is historical only.
+
 This branch (`worktree-seniority-build`) is the **implementation** effort for the seniority mode.
 The spec is the closed wayfinder map [`map-seniority-mode.md`](map-seniority-mode.md) (tickets
 012–017); this scaffold turns it into a compiling, click-through skeleton with `TODO(NNN)` markers

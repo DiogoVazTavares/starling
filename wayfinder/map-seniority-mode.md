@@ -2,6 +2,10 @@
 
 # Map: Seniority / culture-fit interview mode
 
+> **Superseded (2026-08-14)** by [`map-unified-interview.md`](map-unified-interview.md). The
+> two-tab + Live API product direction here is retired. Closed tickets 012–017 remain valid
+> *content* for seniority trees and renamed report schema; see the unified map Notes.
+
 ## Destination
 
 A **build-ready spec** (plan-only) for a **new "seniority / culture-fit" mode in Starling** —
