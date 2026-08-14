@@ -1,0 +1,20 @@
+/**
+ * Single-entry product shell. BEM block: `app`.
+ */
+
+.app {
+  min-height: 100vh;
+}
+
+.app__brand {
+  padding: 1.25rem 1.5rem 0;
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.app__wordmark {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}

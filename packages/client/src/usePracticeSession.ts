@@ -3,8 +3,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { type Feedback, requestFeedback } from './api';
 import { useRecorder } from './audio/useRecorder';
 import { toMono16kWavBase64 } from './audio/wav';
+import { formatDuration } from './sessionPhases';
 
-/** Practice loop stays on behavioral trees until the unified session shell lands. */
+export { formatDuration };
+
+/** Legacy flat behavioral drill — superseded by `useUnifiedSession` for the product shell. */
 const DRILL_TREES: QuestionTree[] = QUESTION_BANK.filter((tree) => tree.category === 'behavioral');
 
 /**
@@ -142,10 +145,4 @@ export function usePracticeSession() {
 
 function describe(cause: unknown): string {
   return cause instanceof Error ? cause.message : String(cause);
-}
-
-export function formatDuration(totalSeconds: number): string {
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${minutes}:${String(seconds).padStart(2, '0')}`;
 }

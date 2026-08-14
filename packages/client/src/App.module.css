@@ -19,6 +19,27 @@
   gap: 1rem;
 }
 
+.practice__chrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.practice__end {
+  padding: 0.45rem 0.9rem;
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.practice__end:hover {
+  color: var(--text);
+}
+
 .practice__nav-button {
   padding: 0.5rem 1rem;
   font-weight: 500;
