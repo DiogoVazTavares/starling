@@ -9,27 +9,29 @@ start at [`wayfinder/map.md`](wayfinder/map.md).
 
 ## Layout
 
-| Path         | What it is                                                           |
-| ------------ | -------------------------------------------------------------------- |
-| `client/`    | Vite + React + TS. Mic capture, WAV conversion, the practice screen. |
-| `server/`    | Hono + TS. Holds `GEMINI_API_KEY` and proxies the Gemini call.       |
-| `wayfinder/` | The map, tickets and research that specify the product.              |
+| Path               | What it is                                                              |
+| ------------------ | ----------------------------------------------------------------------- |
+| `packages/client`  | Vite + React + TS. Mic capture, WAV conversion, the practice screen.    |
+| `packages/server`  | Hono + TS. Holds `GEMINI_API_KEY` and proxies the Gemini call.          |
+| `packages/bank`    | `@starling/bank` — question trees (behavioral, technical, seniority).   |
+| `wayfinder/`       | The map, tickets and research that specify the product.                 |
+
+npm workspaces at the repo root link the three packages.
 
 ## Running it
 
 You need a [Google AI Studio](https://aistudio.google.com/apikey) API key.
 
 ```sh
-cp server/.env.example server/.env   # then put your key in it
-npm --prefix server install
-npm --prefix client install
+cp packages/server/.env.example packages/server/.env   # then put your key in it
+npm install
 ```
 
 Two processes, in two terminals:
 
 ```sh
-npm --prefix server run dev   # http://localhost:8787
-npm --prefix client run dev   # http://localhost:5173
+npm run dev:server   # http://localhost:8787
+npm run dev:client   # http://localhost:5173
 ```
 
 Open http://localhost:5173 and allow microphone access. Vite proxies `/api` to the Hono
@@ -45,16 +47,19 @@ sending: decode the recording → render it through a mono 16 kHz `OfflineAudioC
 ## Scripts
 
 ```sh
-npm --prefix client run check       # biome (format + lint) + typecheck
-npm --prefix client run fix         # biome check --write
-npm --prefix client run build       # typecheck + production build
-npm --prefix server run typecheck
+npm run check                         # client biome + typecheck; server + bank typecheck
+npm run test                          # client + bank unit tests
+npm run typecheck                     # all packages
+npm run check -w @starling/client     # biome (format + lint) + typecheck
+npm run fix -w @starling/client       # biome check --write
+npm run build -w @starling/client     # typecheck + production build
+npm run typecheck -w @starling/server
 ```
 
 The client is formatted and linted by [Biome](https://biomejs.dev) — one dependency covering
 TS, TSX, CSS and JSON. Its styles are CSS Modules named with BEM. The conventions and the
-individual scripts are in [`client/README.md`](client/README.md). The server has no formatter or
-linter yet.
+individual scripts are in [`packages/client/README.md`](packages/client/README.md). The server
+has no formatter or linter yet.
 
-Set `GEMINI_MODEL` in `server/.env` to override the model — `gemini-3.5-flash` is the
+Set `GEMINI_MODEL` in `packages/server/.env` to override the model — `gemini-3.5-flash` is the
 documented fallback ([ticket 008](wayfinder/tickets/008-model-choice-vs-alternatives.md)).

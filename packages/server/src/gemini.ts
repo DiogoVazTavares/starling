@@ -27,7 +27,7 @@ export function getClient(): GoogleGenAI {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new MissingApiKeyError(
-      'GEMINI_API_KEY is not set. Copy server/.env.example to server/.env and add your key.',
+      'GEMINI_API_KEY is not set. Copy packages/server/.env.example to packages/server/.env and add your key.',
     );
   }
   client ??= new GoogleGenAI({ apiKey });

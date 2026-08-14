@@ -1,5 +1,5 @@
 {
-  "name": "client",
+  "name": "@starling/client",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@google/genai": "2.14.0",
+    "@starling/bank": "*",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   },

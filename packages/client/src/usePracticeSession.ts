@@ -1,8 +1,11 @@
+import { QUESTION_BANK, type QuestionTree } from '@starling/bank';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { type Feedback, requestFeedback } from './api';
 import { useRecorder } from './audio/useRecorder';
 import { toMono16kWavBase64 } from './audio/wav';
-import { QUESTION_BANK } from './questions';
+
+/** Practice loop stays on behavioral trees until the unified session shell lands. */
+const DRILL_TREES: QuestionTree[] = QUESTION_BANK.filter((tree) => tree.category === 'behavioral');
 
 /**
  * Practice-screen state machine, per wayfinder ticket 005: record -> review (listen back,
@@ -34,7 +37,7 @@ export function usePracticeSession() {
     };
   }, []);
 
-  const question = QUESTION_BANK[questionIndex];
+  const tree = DRILL_TREES[questionIndex];
   const canNavigate = phase === 'ready' || phase === 'reviewing';
 
   // Memoized so the callbacks below can list them as dependencies honestly. Both close over
@@ -64,7 +67,7 @@ export function usePracticeSession() {
     [questionIndex, goToQuestion],
   );
   const next = useCallback(
-    () => goToQuestion(Math.min(questionIndex + 1, QUESTION_BANK.length - 1)),
+    () => goToQuestion(Math.min(questionIndex + 1, DRILL_TREES.length - 1)),
     [questionIndex, goToQuestion],
   );
 
@@ -107,7 +110,7 @@ export function usePracticeSession() {
     setError(null);
     try {
       const wavBase64 = await toMono16kWavBase64(reviewBlob);
-      setFeedback(await requestFeedback(question.prompt, wavBase64));
+      setFeedback(await requestFeedback(tree.main.text, wavBase64));
       setAttempt((count) => count + 1);
       clearReview();
       setPhase('ready');
@@ -115,12 +118,12 @@ export function usePracticeSession() {
       setError(describe(cause));
       setPhase('reviewing');
     }
-  }, [reviewBlob, question, clearReview]);
+  }, [reviewBlob, tree, clearReview]);
 
   return {
-    question,
+    tree,
     questionIndex,
-    questionCount: QUESTION_BANK.length,
+    questionCount: DRILL_TREES.length,
     phase,
     reviewUrl,
     feedback,
