@@ -10,7 +10,7 @@ const CTA_SECONDARY = `${styles.practice__cta} ${styles['practice__cta--secondar
 export default function App() {
   const session = usePracticeSession();
   const {
-    question,
+    tree,
     questionIndex,
     questionCount,
     phase,
@@ -46,7 +46,7 @@ export default function App() {
         </button>
       </nav>
 
-      <h1 className={styles.practice__question}>{question.prompt}</h1>
+      <h1 className={styles.practice__question}>{tree.main.text}</h1>
 
       <section className={styles.practice__step}>
         {phase === 'ready' && !feedback && (

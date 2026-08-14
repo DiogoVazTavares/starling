@@ -10,5 +10,13 @@ export default defineConfig({
     proxy: {
       '/api': `http://localhost:${SERVER_PORT}`,
     },
+    fs: {
+      // Allow serving the linked workspace bank package during dev.
+      allow: ['..'],
+    },
+  },
+  // Pre-bundle so Vite follows the package's TypeScript export.
+  optimizeDeps: {
+    include: ['@starling/bank'],
   },
 });

@@ -1,7 +1,7 @@
 # Client
 
 Vite + React + TS. Mic capture, WAV conversion, the practice screen. See the root
-[README](../README.md) for how to run it.
+[README](../../README.md) for how to run it.
 
 ## Styling: CSS Modules + BEM
 
