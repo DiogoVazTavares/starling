@@ -18,11 +18,16 @@ export interface Feedback {
 }
 
 /** Goes to the Hono server (Vite proxies `/api`), which holds the Gemini key. */
-export async function requestFeedback(question: string, audioBase64: string): Promise<Feedback> {
+export async function requestFeedback(
+  question: string,
+  audioBase64: string,
+  signal?: AbortSignal,
+): Promise<Feedback> {
   const response = await fetch('/api/feedback', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ question, audioBase64 }),
+    signal,
   });
 
   if (!response.ok) {

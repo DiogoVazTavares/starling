@@ -1,0 +1,134 @@
+/**
+ * Start screen — radio list of profiles (ticket 020).
+ * BEM block: `start`.
+ */
+
+.start {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+  display: grid;
+  gap: 1.75rem;
+}
+
+.start__title {
+  font-size: 1.35rem;
+}
+
+.start__legend {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+}
+
+.start__profiles,
+.start__stance {
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-inline-size: 0;
+}
+
+.start__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.start__row {
+  margin: 0;
+}
+
+.start__label {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.start__label:has(input:checked) {
+  border-color: var(--accent);
+}
+
+.start__label--disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.start__label input {
+  margin-top: 0.2rem;
+}
+
+.start__label-body {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.start__profile-name {
+  font-weight: 600;
+}
+
+.start__profile-meta {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.start__stance-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.start__stance-btn {
+  padding: 0.65rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.start__stance-btn--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.start__tree {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.start__select {
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.85rem;
+}
+
+.start__cta {
+  justify-self: start;
+  background: var(--accent);
+  color: var(--bg);
+  padding: 0.9rem 1.75rem;
+}
+
+.start__error {
+  margin: 0;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+  border-radius: 0.6rem;
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
