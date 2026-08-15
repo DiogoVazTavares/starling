@@ -2,6 +2,8 @@ import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { BadGeminiResponseError, MissingApiKeyError, requestFeedback } from './gemini.ts';
 import { mintLiveToken } from './interviewer.ts';
+import { requestPickFollowUp } from './pickFollowUp.ts';
+import type { PickerCandidate, PickerHistoryEntry } from './picker.ts';
 import { BadSeniorityReportError, generateSeniorityReport, type TranscriptTurn } from './seniority.ts';
 
 /**
@@ -50,6 +52,33 @@ app.post('/api/feedback', async (c) => {
     }
     const detail = error instanceof Error ? error.message : String(error);
     return c.json({ error: `Gemini call failed: ${detail}` }, 502);
+  }
+});
+
+app.post('/api/pick-follow-up', async (c) => {
+  let body: unknown;
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ error: 'Request body must be JSON.' }, 400);
+  }
+
+  const parsed = parsePickFollowUpBody(body);
+  if ('error' in parsed) {
+    return c.json({ error: parsed.error }, parsed.status);
+  }
+
+  try {
+    const result = await requestPickFollowUp(parsed.request);
+    return c.json(result);
+  } catch (error) {
+    console.error('[pick-follow-up] failed:', error);
+
+    if (error instanceof MissingApiKeyError) {
+      return c.json({ error: error.message }, 500);
+    }
+    const detail = error instanceof Error ? error.message : String(error);
+    return c.json({ error: `Pick-follow-up failed: ${detail}` }, 502);
   }
 });
 
@@ -116,3 +145,95 @@ serve({ fetch: app.fetch, port }, ({ port: boundPort }) => {
     console.warn('warning: GEMINI_API_KEY is not set — /api/feedback will fail until it is.');
   }
 });
+
+function parsePickFollowUpBody(
+  body: unknown,
+):
+  | { request: Parameters<typeof requestPickFollowUp>[0] }
+  | { error: string; status: 400 | 413 } {
+  const record = (body ?? {}) as Record<string, unknown>;
+  const {
+    treeId,
+    answeredQuestionId,
+    answeredQuestionText,
+    audioBase64,
+    candidates,
+    history,
+    followUpsAsked,
+  } = record;
+
+  if (typeof treeId !== 'string' || treeId.trim() === '') {
+    return { error: 'Missing "treeId".', status: 400 };
+  }
+  if (typeof answeredQuestionId !== 'string' || answeredQuestionId.trim() === '') {
+    return { error: 'Missing "answeredQuestionId".', status: 400 };
+  }
+  if (typeof answeredQuestionText !== 'string' || answeredQuestionText.trim() === '') {
+    return { error: 'Missing "answeredQuestionText".', status: 400 };
+  }
+  if (typeof audioBase64 !== 'string' || audioBase64 === '') {
+    return { error: 'Missing "audioBase64" (a base64-encoded WAV).', status: 400 };
+  }
+  if (audioBase64.length > MAX_AUDIO_BASE64_CHARS) {
+    return { error: 'That recording is too long to send in one request.', status: 413 };
+  }
+  if (!Array.isArray(candidates)) {
+    return { error: 'Missing "candidates" (an array).', status: 400 };
+  }
+  if (!Array.isArray(history)) {
+    return { error: 'Missing "history" (an array).', status: 400 };
+  }
+  if (typeof followUpsAsked !== 'number' || !Number.isFinite(followUpsAsked) || followUpsAsked < 0) {
+    return { error: 'Missing "followUpsAsked" (a non-negative number).', status: 400 };
+  }
+
+  const parsedCandidates: PickerCandidate[] = [];
+  for (const entry of candidates) {
+    const candidate = (entry ?? {}) as Record<string, unknown>;
+    if (typeof candidate.id !== 'string' || candidate.id.trim() === '') {
+      return { error: 'Each candidate needs a non-empty "id".', status: 400 };
+    }
+    if (typeof candidate.text !== 'string' || candidate.text.trim() === '') {
+      return { error: 'Each candidate needs a non-empty "text".', status: 400 };
+    }
+    const item: PickerCandidate = { id: candidate.id, text: candidate.text };
+    if (Array.isArray(candidate.tags) && candidate.tags.every((t) => typeof t === 'string')) {
+      item.tags = candidate.tags as string[];
+    }
+    if (typeof candidate.required === 'boolean') {
+      item.required = candidate.required;
+    }
+    parsedCandidates.push(item);
+  }
+
+  const parsedHistory: PickerHistoryEntry[] = [];
+  for (const entry of history) {
+    const turn = (entry ?? {}) as Record<string, unknown>;
+    if (typeof turn.questionId !== 'string' || turn.questionId.trim() === '') {
+      return { error: 'Each history entry needs a non-empty "questionId".', status: 400 };
+    }
+    if (typeof turn.questionText !== 'string' || turn.questionText.trim() === '') {
+      return { error: 'Each history entry needs a non-empty "questionText".', status: 400 };
+    }
+    const item: PickerHistoryEntry = {
+      questionId: turn.questionId,
+      questionText: turn.questionText,
+    };
+    if (typeof turn.coverageNote === 'string') {
+      item.coverageNote = turn.coverageNote;
+    }
+    parsedHistory.push(item);
+  }
+
+  return {
+    request: {
+      treeId,
+      answeredQuestionId,
+      answeredQuestionText,
+      audioBase64,
+      candidates: parsedCandidates,
+      history: parsedHistory,
+      followUpsAsked,
+    },
+  };
+}

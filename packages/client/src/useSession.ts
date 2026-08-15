@@ -1,8 +1,13 @@
 import { QUESTION_BANK, type Question, type QuestionTree } from '@starling/bank';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { type Feedback, requestFeedback } from './api';
+import { type Feedback, requestFeedback, requestPickFollowUp } from './api';
 import { useRecorder } from './audio/useRecorder';
 import { toMono16kWavBase64 } from './audio/wav';
+import {
+  localDoneWhenEmpty,
+  remainingFollowUpCandidates,
+  resolveQuestionById,
+} from './followUpPool';
 import {
   assembleSessionTrees,
   assessProfileFill,
@@ -11,13 +16,23 @@ import {
 } from './profiles';
 import {
   formatProgressChrome,
+  nextPhaseAfterPick,
   nextPhaseAfterStop,
   phaseAfterEndSession,
   type ReviewStance,
   type SessionPhase,
 } from './sessionPhases';
+import {
+  advanceToQuestion,
+  initialTreeCursor,
+  recordAnswered,
+  type TreeCursor,
+} from './treeCursor';
 
 export type { ReviewStance, SessionPhase };
+
+/** Client soft timeout sits above the server 25 s coerce so hung fetches leave picking. */
+const CLIENT_PICK_TIMEOUT_MS = 30_000;
 
 export interface ProfileOption {
   profile: InterviewProfile;
@@ -26,11 +41,10 @@ export interface ProfileOption {
 }
 
 /**
- * Unified session machine (020) for the single-entry shell.
- * Behavioral drill (`perAttempt`) is the full path; `endReport` profiles run tree mains
- * then finish without an end-report screen (that lands with ticket 022).
+ * Session machine (020) for the single-entry shell.
+ * After each submit, the session waits on picking (021); empty pools finish locally.
  */
-export function useUnifiedSession() {
+export function useSession() {
   const recorder = useRecorder();
   const [phase, setPhase] = useState<SessionPhase>('start');
   const [profileId, setProfileId] = useState('behavioral-drill');
@@ -38,7 +52,7 @@ export function useUnifiedSession() {
   const [pickedTreeId, setPickedTreeId] = useState<string | 'random'>('random');
   const [sessionTrees, setSessionTrees] = useState<QuestionTree[]>([]);
   const [treeIndex, setTreeIndex] = useState(0);
-  const [questionIndex, setQuestionIndex] = useState(0);
+  const [cursor, setCursor] = useState<TreeCursor | null>(null);
   const [activeProfile, setActiveProfile] = useState<InterviewProfile | null>(null);
   const [activeStance, setActiveStance] = useState<ReviewStance>('practice');
   const [reviewBlob, setReviewBlob] = useState<Blob | null>(null);
@@ -83,6 +97,11 @@ export function useUnifiedSession() {
     abortRef.current = null;
   }, []);
 
+  const resetTreeCursor = useCallback((tree: QuestionTree) => {
+    setCursor(initialTreeCursor(tree));
+    setTreeDone(false);
+  }, []);
+
   const resetToStart = useCallback(() => {
     cancelInFlight();
     if (recorder.status === 'recording') {
@@ -95,7 +114,7 @@ export function useUnifiedSession() {
     setError(null);
     setSessionTrees([]);
     setTreeIndex(0);
-    setQuestionIndex(0);
+    setCursor(null);
     setActiveProfile(null);
     setTreeDone(false);
     setPhase(phaseAfterEndSession());
@@ -119,27 +138,27 @@ export function useUnifiedSession() {
       setActiveStance(stance);
       setSessionTrees(trees);
       setTreeIndex(0);
-      setQuestionIndex(0);
+      resetTreeCursor(trees[0]);
       setFeedback(null);
       setError(null);
-      setTreeDone(false);
       clearReview();
       setPhase('ready');
     } catch (cause) {
       setError(describe(cause));
     }
-  }, [selectedProfile, stance, pickedTreeId, clearReview]);
+  }, [selectedProfile, stance, pickedTreeId, clearReview, resetTreeCursor]);
 
   const tree = sessionTrees[treeIndex] ?? null;
-  const question: Question | null = tree ? questionAt(tree, questionIndex) : null;
+  const question: Question | null =
+    tree && cursor ? resolveQuestionById(tree, cursor.questionId) : null;
 
   const progressChrome =
-    tree && sessionTrees.length > 0
+    tree && cursor && sessionTrees.length > 0
       ? formatProgressChrome({
           treeIndex,
           treeCount: sessionTrees.length,
           category: tree.category,
-          questionIndex,
+          questionIndex: cursor.questionIndex,
         })
       : null;
 
@@ -161,15 +180,13 @@ export function useUnifiedSession() {
     }
   }, [recorder, clearReview]);
 
-  const advanceAfterAnswer = useCallback(
+  const finishTreeOrSession = useCallback(
     (profile: InterviewProfile, trees: QuestionTree[], currentTreeIndex: number) => {
-      // Follow-up picker (021) is not wired yet — each tree is one Question (the main).
       const nextTree = currentTreeIndex + 1;
       if (nextTree < trees.length) {
         setTreeIndex(nextTree);
-        setQuestionIndex(0);
+        resetTreeCursor(trees[nextTree]);
         setFeedback(null);
-        setTreeDone(false);
         setPhase('ready');
         return;
       }
@@ -182,37 +199,110 @@ export function useUnifiedSession() {
 
       setPhase('finishing');
     },
-    [],
+    [resetTreeCursor],
+  );
+
+  const applyPickResult = useCallback(
+    (
+      profile: InterviewProfile,
+      trees: QuestionTree[],
+      currentTree: QuestionTree,
+      currentTreeIndex: number,
+      answered: Question,
+      prior: TreeCursor,
+      next: string,
+      candidates: Question[],
+    ) => {
+      if (nextPhaseAfterPick(next) === 'treeDone') {
+        setCursor(recordAnswered(prior, answered));
+        finishTreeOrSession(profile, trees, currentTreeIndex);
+        return;
+      }
+
+      const nextQuestion =
+        resolveQuestionById(currentTree, next) ??
+        resolveQuestionById(currentTree, firstCandidateId(candidates) ?? '') ??
+        null;
+
+      if (!nextQuestion) {
+        setCursor(recordAnswered(prior, answered));
+        finishTreeOrSession(profile, trees, currentTreeIndex);
+        return;
+      }
+
+      setCursor(advanceToQuestion(prior, answered, nextQuestion));
+      setFeedback(null);
+      setTreeDone(false);
+      setPhase('ready');
+    },
+    [finishTreeOrSession],
   );
 
   const submitBlob = useCallback(
     async (blob: Blob) => {
-      if (!tree || !question || !activeProfile) return;
+      if (!tree || !question || !activeProfile || !cursor) return;
 
       setPhase('submitting');
       setError(null);
       cancelInFlight();
       const controller = new AbortController();
       abortRef.current = controller;
+      const pickSignal = AbortSignal.any([
+        controller.signal,
+        AbortSignal.timeout(CLIENT_PICK_TIMEOUT_MS),
+      ]);
+
+      const prior = cursor;
 
       try {
+        const wavBase64 = await toMono16kWavBase64(blob);
+
         if (activeProfile.reportMode === 'perAttempt') {
-          const wavBase64 = await toMono16kWavBase64(blob);
           const result = await requestFeedback(question.text, wavBase64, controller.signal);
           setFeedback(result);
-          clearReview();
-          // Empty follow-up pools → tree done after the main (picker lands later).
-          setTreeDone(true);
-          setPhase('attemptFeedback');
-        } else {
-          // endReport: record answers only; end-report UI lands with 022.
-          clearReview();
-          advanceAfterAnswer(activeProfile, sessionTrees, treeIndex);
         }
+
+        setPhase('picking');
+
+        const candidates = remainingFollowUpCandidates(tree, [...prior.askedIds, question.id]);
+        const localDone = localDoneWhenEmpty(candidates);
+        const followUpsAsked = [...prior.askedIds, question.id].filter(
+          (id) => id !== tree.main.id,
+        ).length;
+
+        const pick =
+          localDone ??
+          (await requestPickFollowUp(
+            {
+              treeId: tree.id,
+              answeredQuestionId: question.id,
+              answeredQuestionText: question.text,
+              audioBase64: wavBase64,
+              candidates,
+              history: prior.history,
+              followUpsAsked,
+            },
+            pickSignal,
+          ));
+
+        if (controller.signal.aborted) return;
+
+        clearReview();
+        applyPickResult(
+          activeProfile,
+          sessionTrees,
+          tree,
+          treeIndex,
+          question,
+          prior,
+          pick.next,
+          candidates,
+        );
       } catch (cause) {
         if (controller.signal.aborted) return;
         setError(describe(cause));
-        setPhase(activeStance === 'practice' ? 'reviewing' : 'ready');
+        // Keep review audio so Practice can re-submit after a pick/network failure (021).
+        setPhase(activeStance === 'practice' && reviewUrl ? 'reviewing' : 'ready');
       } finally {
         if (abortRef.current === controller) abortRef.current = null;
       }
@@ -224,9 +314,11 @@ export function useUnifiedSession() {
       activeStance,
       sessionTrees,
       treeIndex,
+      cursor,
+      reviewUrl,
       cancelInFlight,
       clearReview,
-      advanceAfterAnswer,
+      applyPickResult,
     ],
   );
 
@@ -258,13 +350,13 @@ export function useUnifiedSession() {
   }, [reviewBlob, submitBlob]);
 
   const tryAgain = useCallback(() => {
+    if (!tree) return;
     setFeedback(null);
     setError(null);
-    setTreeDone(false);
-    setQuestionIndex(0);
+    resetTreeCursor(tree);
     clearReview();
     setPhase('ready');
-  }, [clearReview]);
+  }, [clearReview, resetTreeCursor, tree]);
 
   const endSession = useCallback(() => {
     resetToStart();
@@ -300,12 +392,11 @@ export function useUnifiedSession() {
   };
 }
 
-function questionAt(tree: QuestionTree, questionIndex: number): Question {
-  if (questionIndex <= 0) return tree.main;
-  const followUp = tree.followUps[questionIndex - 1];
-  return followUp ?? tree.main;
-}
-
 function describe(cause: unknown): string {
   return cause instanceof Error ? cause.message : String(cause);
+}
+
+function firstCandidateId(candidates: readonly Question[]): string | undefined {
+  if (candidates.length === 0) return undefined;
+  return [...candidates].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))[0]?.id;
 }

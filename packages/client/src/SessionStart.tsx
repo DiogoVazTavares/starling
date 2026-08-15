@@ -2,7 +2,7 @@ import { QUESTION_BANK } from '@starling/bank';
 import { behavioralTreesForPicker, formatProfileSummary, type InterviewProfile } from './profiles';
 import styles from './SessionStart.module.css';
 import type { ReviewStance } from './sessionPhases';
-import type { ProfileOption } from './useUnifiedSession';
+import type { ProfileOption } from './useSession';
 
 const CTA = styles.start__cta;
 const LABEL_BODY = styles['start__label-body'];

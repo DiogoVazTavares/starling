@@ -1,13 +1,13 @@
 import styles from './App.module.css';
 import { FeedbackPanel } from './FeedbackPanel';
 import { formatDuration } from './sessionPhases';
-import type { useUnifiedSession } from './useUnifiedSession';
+import type { useSession } from './useSession';
 
 const CTA_RECORD = `${styles.practice__cta} ${styles['practice__cta--record']}`;
 const CTA_STOP = `${styles.practice__cta} ${styles['practice__cta--stop']}`;
 const CTA_SECONDARY = `${styles.practice__cta} ${styles['practice__cta--secondary']}`;
 
-type Session = ReturnType<typeof useUnifiedSession>;
+type Session = ReturnType<typeof useSession>;
 
 export function SessionRun({ session }: { session: Session }) {
   const { phase, question, progressChrome, reviewUrl, feedback, error, treeDone } = session;
@@ -68,6 +68,15 @@ export function SessionRun({ session }: { session: Session }) {
             <span className={styles.practice__spinner} aria-hidden />
             <p className={styles.practice__hint} aria-live="polite">
               Listening to your answer…
+            </p>
+          </div>
+        )}
+
+        {phase === 'picking' && (
+          <div className={styles['practice__step-inner']}>
+            <span className={styles.practice__spinner} aria-hidden />
+            <p className={styles.practice__hint} aria-live="polite">
+              Choosing the next question…
             </p>
           </div>
         )}

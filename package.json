@@ -7,7 +7,7 @@
     "dev:client": "npm run dev -w @starling/client",
     "dev:server": "npm run dev -w @starling/server",
     "check": "npm run check -w @starling/client && npm run typecheck -w @starling/server && npm run typecheck -w @starling/bank",
-    "test": "npm run test -w @starling/client && npm run test -w @starling/bank",
+    "test": "npm run test -w @starling/client && npm run test -w @starling/bank && npm run test -w @starling/server",
     "typecheck": "npm run typecheck -w @starling/client && npm run typecheck -w @starling/server && npm run typecheck -w @starling/bank"
   }
 }
