@@ -1,13 +1,13 @@
 import styles from './App.module.css';
 import { FeedbackPanel } from './FeedbackPanel';
 import { formatDuration } from './sessionPhases';
-import type { useUnifiedSession } from './useUnifiedSession';
+import type { useSession } from './useSession';
 
 const CTA_RECORD = `${styles.practice__cta} ${styles['practice__cta--record']}`;
 const CTA_STOP = `${styles.practice__cta} ${styles['practice__cta--stop']}`;
 const CTA_SECONDARY = `${styles.practice__cta} ${styles['practice__cta--secondary']}`;
 
-type Session = ReturnType<typeof useUnifiedSession>;
+type Session = ReturnType<typeof useSession>;
 
 export function SessionRun({ session }: { session: Session }) {
   const { phase, question, progressChrome, reviewUrl, feedback, error, treeDone } = session;

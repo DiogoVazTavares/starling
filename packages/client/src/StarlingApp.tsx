@@ -1,14 +1,14 @@
 import { SessionRun } from './SessionRun';
 import { SessionStart } from './SessionStart';
 import styles from './StarlingApp.module.css';
-import { useUnifiedSession } from './useUnifiedSession';
+import { useSession } from './useSession';
 
 /**
  * Single-entry shell (ticket 020): brand wordmark only — no mode tabs.
  * Seniority Live stays in the tree but is not reachable from here.
  */
 export function StarlingApp() {
-  const session = useUnifiedSession();
+  const session = useSession();
 
   return (
     <div className={styles.app}>

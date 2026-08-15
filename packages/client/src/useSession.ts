@@ -1,11 +1,6 @@
 import { QUESTION_BANK, type Question, type QuestionTree } from '@starling/bank';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  type Feedback,
-  type PickerHistoryEntry,
-  requestFeedback,
-  requestPickFollowUp,
-} from './api';
+import { type Feedback, requestFeedback, requestPickFollowUp } from './api';
 import { useRecorder } from './audio/useRecorder';
 import { toMono16kWavBase64 } from './audio/wav';
 import {
@@ -27,6 +22,12 @@ import {
   type ReviewStance,
   type SessionPhase,
 } from './sessionPhases';
+import {
+  advanceToQuestion,
+  initialTreeCursor,
+  recordAnswered,
+  type TreeCursor,
+} from './treeCursor';
 
 export type { ReviewStance, SessionPhase };
 
@@ -40,10 +41,10 @@ export interface ProfileOption {
 }
 
 /**
- * Unified session machine (020) for the single-entry shell.
+ * Session machine (020) for the single-entry shell.
  * After each submit, the session waits on picking (021); empty pools finish locally.
  */
-export function useUnifiedSession() {
+export function useSession() {
   const recorder = useRecorder();
   const [phase, setPhase] = useState<SessionPhase>('start');
   const [profileId, setProfileId] = useState('behavioral-drill');
@@ -51,10 +52,7 @@ export function useUnifiedSession() {
   const [pickedTreeId, setPickedTreeId] = useState<string | 'random'>('random');
   const [sessionTrees, setSessionTrees] = useState<QuestionTree[]>([]);
   const [treeIndex, setTreeIndex] = useState(0);
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [questionId, setQuestionId] = useState<string | null>(null);
-  const [askedIds, setAskedIds] = useState<string[]>([]);
-  const [treeHistory, setTreeHistory] = useState<PickerHistoryEntry[]>([]);
+  const [cursor, setCursor] = useState<TreeCursor | null>(null);
   const [activeProfile, setActiveProfile] = useState<InterviewProfile | null>(null);
   const [activeStance, setActiveStance] = useState<ReviewStance>('practice');
   const [reviewBlob, setReviewBlob] = useState<Blob | null>(null);
@@ -100,10 +98,7 @@ export function useUnifiedSession() {
   }, []);
 
   const resetTreeCursor = useCallback((tree: QuestionTree) => {
-    setQuestionIndex(0);
-    setQuestionId(tree.main.id);
-    setAskedIds([]);
-    setTreeHistory([]);
+    setCursor(initialTreeCursor(tree));
     setTreeDone(false);
   }, []);
 
@@ -119,10 +114,7 @@ export function useUnifiedSession() {
     setError(null);
     setSessionTrees([]);
     setTreeIndex(0);
-    setQuestionIndex(0);
-    setQuestionId(null);
-    setAskedIds([]);
-    setTreeHistory([]);
+    setCursor(null);
     setActiveProfile(null);
     setTreeDone(false);
     setPhase(phaseAfterEndSession());
@@ -158,15 +150,15 @@ export function useUnifiedSession() {
 
   const tree = sessionTrees[treeIndex] ?? null;
   const question: Question | null =
-    tree && questionId ? resolveQuestionById(tree, questionId) : null;
+    tree && cursor ? resolveQuestionById(tree, cursor.questionId) : null;
 
   const progressChrome =
-    tree && sessionTrees.length > 0
+    tree && cursor && sessionTrees.length > 0
       ? formatProgressChrome({
           treeIndex,
           treeCount: sessionTrees.length,
           category: tree.category,
-          questionIndex,
+          questionIndex: cursor.questionIndex,
         })
       : null;
 
@@ -217,24 +209,12 @@ export function useUnifiedSession() {
       currentTree: QuestionTree,
       currentTreeIndex: number,
       answered: Question,
-      priorAsked: string[],
-      priorHistory: PickerHistoryEntry[],
+      prior: TreeCursor,
       next: string,
       candidates: Question[],
     ) => {
-      const askedIncludingAnswer = [...priorAsked, answered.id];
-      const historyIncludingAnswer: PickerHistoryEntry[] = [
-        ...priorHistory,
-        { questionId: answered.id, questionText: answered.text },
-      ];
-
-      const commitAnswered = () => {
-        setAskedIds(askedIncludingAnswer);
-        setTreeHistory(historyIncludingAnswer);
-      };
-
       if (nextPhaseAfterPick(next) === 'treeDone') {
-        commitAnswered();
+        setCursor(recordAnswered(prior, answered));
         finishTreeOrSession(profile, trees, currentTreeIndex);
         return;
       }
@@ -245,14 +225,12 @@ export function useUnifiedSession() {
         null;
 
       if (!nextQuestion) {
-        commitAnswered();
+        setCursor(recordAnswered(prior, answered));
         finishTreeOrSession(profile, trees, currentTreeIndex);
         return;
       }
 
-      commitAnswered();
-      setQuestionId(nextQuestion.id);
-      setQuestionIndex(askedIncludingAnswer.length);
+      setCursor(advanceToQuestion(prior, answered, nextQuestion));
       setFeedback(null);
       setTreeDone(false);
       setPhase('ready');
@@ -262,7 +240,7 @@ export function useUnifiedSession() {
 
   const submitBlob = useCallback(
     async (blob: Blob) => {
-      if (!tree || !question || !activeProfile) return;
+      if (!tree || !question || !activeProfile || !cursor) return;
 
       setPhase('submitting');
       setError(null);
@@ -274,8 +252,7 @@ export function useUnifiedSession() {
         AbortSignal.timeout(CLIENT_PICK_TIMEOUT_MS),
       ]);
 
-      const priorAsked = askedIds;
-      const priorHistory = treeHistory;
+      const prior = cursor;
 
       try {
         const wavBase64 = await toMono16kWavBase64(blob);
@@ -287,9 +264,9 @@ export function useUnifiedSession() {
 
         setPhase('picking');
 
-        const candidates = remainingFollowUpCandidates(tree, [...priorAsked, question.id]);
+        const candidates = remainingFollowUpCandidates(tree, [...prior.askedIds, question.id]);
         const localDone = localDoneWhenEmpty(candidates);
-        const followUpsAsked = [...priorAsked, question.id].filter(
+        const followUpsAsked = [...prior.askedIds, question.id].filter(
           (id) => id !== tree.main.id,
         ).length;
 
@@ -302,7 +279,7 @@ export function useUnifiedSession() {
               answeredQuestionText: question.text,
               audioBase64: wavBase64,
               candidates,
-              history: priorHistory,
+              history: prior.history,
               followUpsAsked,
             },
             pickSignal,
@@ -317,8 +294,7 @@ export function useUnifiedSession() {
           tree,
           treeIndex,
           question,
-          priorAsked,
-          priorHistory,
+          prior,
           pick.next,
           candidates,
         );
@@ -338,8 +314,7 @@ export function useUnifiedSession() {
       activeStance,
       sessionTrees,
       treeIndex,
-      askedIds,
-      treeHistory,
+      cursor,
       reviewUrl,
       cancelInFlight,
       clearReview,
