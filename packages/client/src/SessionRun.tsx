@@ -72,6 +72,15 @@ export function SessionRun({ session }: { session: Session }) {
           </div>
         )}
 
+        {phase === 'picking' && (
+          <div className={styles['practice__step-inner']}>
+            <span className={styles.practice__spinner} aria-hidden />
+            <p className={styles.practice__hint} aria-live="polite">
+              Choosing the next question…
+            </p>
+          </div>
+        )}
+
         {phase === 'attemptFeedback' && treeDone && (
           <div className={styles['practice__step-inner']}>
             <p className={styles.practice__hint}>Tree complete.</p>
