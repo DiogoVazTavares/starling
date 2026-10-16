@@ -1,0 +1,58 @@
+---
+description: >-
+  GitHub and git workflow for this repo: branches, commits, pull requests,
+  issues, and the gh CLI. Apply when the user mentions PRs, commits, issues,
+  branches, git, GitHub, merging, or reviewing code on GitHub.
+alwaysApply: false
+---
+
+# GitHub workflow
+
+## Branches
+
+- `main` is the trunk. Always releasable. Never commit to it directly; never force-push, rebase, or reset it.
+- Each feature gets its own branch off `main`: implement → review → optimize → human review → open PR.
+- PRs target `main`, opened only after human review.
+- Do not use `git worktree` unless told otherwise.
+
+## Commits
+
+- Only create commits when the user asks.
+- Use conventional commit messages (e.g. `feat:`, `fix:`, `chore:`).
+- Never update git config; never skip hooks; never use interactive git flags (`-i`).
+- Never force-push to `main`/`master`. Warn if the user asks.
+- Avoid `git commit --amend` unless the user asked, HEAD was created by you in this conversation, and the commit is not pushed.
+- If a commit fails or a hook rejects it, fix the issue and create a **new** commit (do not amend).
+- Do not commit secrets (`.env`, credentials). Warn if asked to.
+- Before committing, run in parallel: `git status`, `git diff` (staged + unstaged), `git log`.
+- Stage relevant files, then commit with a HEREDOC message focused on why:
+
+```bash
+git commit -m "$(cat <<'EOF'
+feat: short reason for the change.
+
+EOF
+)"
+```
+
+- After commit, run `git status` to verify. Do not push unless the user asks.
+
+## Pull requests
+
+- Use `gh` for all GitHub tasks (issues, PRs, checks, releases).
+- Before creating a PR, in parallel: `git status`, `git diff`, remote tracking check, `git log` and `git diff main...HEAD`.
+- Push with `-u` if needed, then create the PR:
+
+```bash
+gh pr create --title "the pr title" --body "$(cat <<'EOF'
+## Summary
+- bullet points
+
+## Test plan
+- [ ] checklist items
+
+EOF
+)"
+```
+
+- Return the PR URL when done.
