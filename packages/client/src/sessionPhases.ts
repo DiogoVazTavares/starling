@@ -5,7 +5,7 @@ export type ReviewStance = 'practice' | 'simulation';
 
 /**
  * Guided session phases for the unified shell (020).
- * `picking` / end-report analyzing land with later tickets; drill uses attemptFeedback.
+ * End-report analyzing lands with ticket 022.
  */
 export type SessionPhase =
   | 'start'
@@ -13,8 +13,12 @@ export type SessionPhase =
   | 'recording'
   | 'reviewing'
   | 'submitting'
+  | 'picking'
   | 'attemptFeedback'
   | 'finishing';
+
+/** After `/api/pick-follow-up`: next Question, or the tree is done. */
+export type PickOutcomePhase = 'ready' | 'treeDone';
 
 const CATEGORY_CHROME: Record<InterviewCategory, string> = {
   behavioral: 'Behavioral',
@@ -25,6 +29,11 @@ const CATEGORY_CHROME: Record<InterviewCategory, string> = {
 /** Practice listens back; Simulation submits as soon as recording stops. */
 export function nextPhaseAfterStop(stance: ReviewStance): 'reviewing' | 'submitting' {
   return stance === 'practice' ? 'reviewing' : 'submitting';
+}
+
+/** Map a picker response to the next guided phase. */
+export function nextPhaseAfterPick(next: string): PickOutcomePhase {
+  return next === 'done' ? 'treeDone' : 'ready';
 }
 
 /** Progress line shown on Question screens for both stances. */

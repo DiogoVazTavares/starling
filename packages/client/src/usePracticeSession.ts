@@ -7,7 +7,7 @@ import { formatDuration } from './sessionPhases';
 
 export { formatDuration };
 
-/** Legacy flat behavioral drill — superseded by `useUnifiedSession` for the product shell. */
+/** Legacy flat behavioral drill — superseded by `useSession` for the product shell. */
 const DRILL_TREES: QuestionTree[] = QUESTION_BANK.filter((tree) => tree.category === 'behavioral');
 
 /**

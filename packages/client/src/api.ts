@@ -17,6 +17,31 @@ export interface Feedback {
   interviewReady: boolean;
 }
 
+export interface PickerHistoryEntry {
+  questionId: string;
+  questionText: string;
+  coverageNote?: string;
+}
+
+export interface PickFollowUpCandidate {
+  id: string;
+  text: string;
+  tags?: string[];
+  required?: boolean;
+}
+
+export interface PickFollowUpRequest {
+  treeId: string;
+  answeredQuestionId: string;
+  answeredQuestionText: string;
+  audioBase64: string;
+  candidates: PickFollowUpCandidate[];
+  history: PickerHistoryEntry[];
+  followUpsAsked: number;
+}
+
+export type PickFollowUpResponse = { next: 'done' } | { next: string; reason?: string };
+
 /** Goes to the Hono server (Vite proxies `/api`), which holds the Gemini key. */
 export async function requestFeedback(
   question: string,
@@ -39,4 +64,27 @@ export async function requestFeedback(
   }
 
   return response.json() as Promise<Feedback>;
+}
+
+/** Mid-session follow-up pick (ticket 021). */
+export async function requestPickFollowUp(
+  body: PickFollowUpRequest,
+  signal?: AbortSignal,
+): Promise<PickFollowUpResponse> {
+  const response = await fetch('/api/pick-follow-up', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+    signal,
+  });
+
+  if (!response.ok) {
+    const reported = await response
+      .json()
+      .then((payload: { error?: string }) => payload.error)
+      .catch(() => undefined);
+    throw new Error(reported ?? `The server returned ${response.status}.`);
+  }
+
+  return response.json() as Promise<PickFollowUpResponse>;
 }
